@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.dev.utils.commons.DevStrUtil;
 import org.apache.poi.common.usermodel.fonts.FontInfo;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.model.Ffn;
@@ -31,7 +32,6 @@ public class DocFontReplacer {
         try (InputStream is = new FileInputStream(filePath)) {
             HWPFDocument doc = new HWPFDocument(is);
             final FontTable fontTable = doc.getFontTable();
-            doc.font
             int i = 0;
             Set<String> fontSets= new HashSet<>();
             for (Ffn fontName : fontTable.getFontNames()) {
