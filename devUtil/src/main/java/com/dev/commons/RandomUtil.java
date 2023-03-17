@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class RandomUtil {
 
-    private static final int cacheSize = 1000 ;
+    private static final int cacheSize = 500 ;
     private static int int_index = 0 ;
 
     private static ThreadLocalRandom getRandom(){
@@ -38,13 +38,7 @@ public class RandomUtil {
      * 初始化  int array ， 让 0 - maxValueLimit 的数字 填满 整个数组
      */
     static {
-        //
-        CompletableFuture.runAsync(()->{
-            CompletableFuture future = reRandomArray();
-            future.thenAccept((x)->{
-                System.out.println("完成啦！");
-            });
-        });
+        reRandomArray();
     }
 
 
@@ -89,33 +83,17 @@ public class RandomUtil {
 //        return nextInt()<(maxValueLimit/2);
     }
 
+    public static final char nextChar(){
+        int index = nextInt()%chars.length;
+        return chars[index];
+    }
+
     public static final String randomStr(final int len){
         StringBuilder sb = new StringBuilder();
         while (sb.length() < len){
-            int index = nextInt()%chars.length;
-            sb.append(chars[index]);
+           sb.append(nextChar());
         }
         return sb.toString();
     }
-
-    public static void main(String[] args) {
-
-        for (int i = 0; i < 10000; i++) {
-            System.out.print( nextInt() + " ");
-            if((i+1)%50 ==0){
-                System.out.println();
-            }
-        }
-        System.out.println();
-        System.out.println(randomStr(10));
-        System.out.println(randomStr(10));
-        System.out.println(randomStr(10));
-        System.out.println(randomStr(10));
-        System.out.println(randomStr(10));
-        System.out.println(randomStr(10));
-
-
-    }
-
-
+    
 }

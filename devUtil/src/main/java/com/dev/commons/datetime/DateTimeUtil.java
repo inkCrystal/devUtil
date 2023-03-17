@@ -42,13 +42,6 @@ public class DateTimeUtil {
     }
 
 
-
-
-
-    static Pattern compileXXX = compile("^([1-9]\\d{3,3})-([0-1][0-9])-([0-3][0-9])T([0-2][0-9]):([0-5][0-9]):([0-5][0-9])\\.?\\d*$");
-
-
-
     public static final String buildDateTimeString(int year, int month ,int day ,int hour,int minute,int second){
         return DateStrFixer.buildDateTimeString(year, month, day, hour, minute, second);
     }
@@ -198,15 +191,14 @@ public class DateTimeUtil {
 
 
     public LocalDateTime ofString(String text){
-
-        if(text.contains("T")){
-            final String[] textArray = text.split("T");
-            String dateStr = textArray[0];
-            String timeStr = textArray[1];
-        }
-        text = text.trim().replaceAll(" ","T");
-
-        return LocalDateTime.now();
+        return LocalDateTime.parse(text);
+//        if(text.contains("T")){
+//            final String[] textArray = text.split("T");
+//            String dateStr = textArray[0];
+//            String timeStr = textArray[1];
+//        }
+//        text = text.trim().replaceAll(" ","T");
+//        return LocalDateTime.now();
     }
 
 
@@ -284,7 +276,7 @@ public class DateTimeUtil {
             return simpleDateFormat;
         }
 
-        private static final DateTimeFormatter getFmt(String fmt){
+        private static DateTimeFormatter getFmt(String fmt){
             if(fmtHolder == null){
                 fmtHolder = new WeakHashMap<>();
             }
@@ -294,8 +286,6 @@ public class DateTimeUtil {
                     fmtHolder.put(fmt,pattern);
                 }catch (IllegalArgumentException e){
                     throw new IllegalArgumentException("不合适且无法被解析的日期时间格式化表达式:" + fmt ,e);
-                }catch (Exception e){
-                    throw e ;
                 }
             }
             DateTimeFormatter dateTimeFormatter = fmtHolder.get(fmt);
@@ -323,38 +313,38 @@ public class DateTimeUtil {
             return sb.toString();
         }
 
-        protected static final String fixYearNum(int v){
+        protected static String fixYearNum(int v){
             return fixNum(v,4,9999);
         }
-        protected static final String fixMonthNum(int v){
+        protected static String fixMonthNum(int v){
             return fixNum(v,2,12);
         }
-        protected static final String fixDayNum(int v){
+        protected static String fixDayNum(int v){
             return fixNum(v,2,31);
         }
-        protected static final String fixHourNum(int v){
+        protected static String fixHourNum(int v){
             return fixNum(v,2,23);
         }
-        protected static final String fixMinuteNum(int v){
+        protected static String fixMinuteNum(int v){
             return fixNum(v,2,59);
         }
 
-        protected static final String fixSecondNum(int v){
+        protected static String fixSecondNum(int v){
             return fixMinuteNum(v);
         }
 
-        protected static final String buildDateTimeString(int year, int month,int day, int hour,int minute, int second){
+        protected static String buildDateTimeString(int year, int month,int day, int hour,int minute, int second){
             StringBuilder dateSb = new StringBuilder()
                     .append(fixYearNum(year)).append("-")
                     .append(fixMonthNum(month)).append("-")
-                    .append(fixDayNum(month)).append("T")
-                    .append(fixHourNum(month)).append(":")
-                    .append(fixMinuteNum(month)).append(":")
-                    .append(fixSecondNum(month)).append("");
+                    .append(fixDayNum(day)).append("T")
+                    .append(fixHourNum(hour)).append(":")
+                    .append(fixMinuteNum(minute)).append(":")
+                    .append(fixSecondNum(second)).append("");
             return dateSb.toString();
         }
 
-        protected static final String buildDateTimeString(int year, int month,int day,int hour,int minute){
+        protected static String buildDateTimeString(int year, int month, int day, int hour, int minute){
             return buildDateTimeString(year,month,day,hour,minute,0);
         }
 
