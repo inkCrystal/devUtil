@@ -151,6 +151,7 @@
                     <source>17</source>
                     <target>17</target>
                     <encoding>utf-8</encoding>
+                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
             </plugin>
         </plugins>
