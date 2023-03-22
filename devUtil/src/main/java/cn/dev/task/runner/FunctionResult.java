@@ -5,12 +5,7 @@ import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
 
 import java.io.Serial;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
 
 public class FunctionResult<T> extends TaskFuture {
     @Serial
@@ -32,13 +27,11 @@ public class FunctionResult<T> extends TaskFuture {
 
 
     protected FunctionResult() {
-        this.fireAccept();
     }
 
     protected FunctionResult(long expireTime) {
         this.expireTime = expireTime;
         this.timeoutAble = true;
-        this.fireAccept();
     }
 
 
@@ -74,37 +67,20 @@ public class FunctionResult<T> extends TaskFuture {
 
 
 
-    public static void main(String[] args) throws InterruptedException {
-
-        Thread thread =new Thread(()->{
-           while (true){
-               //
-           }
-        });
-        FunctionResult<Integer> result = new FunctionResult<>();
-
-        CompletableFuture.runAsync(()->{
-            result.state = FunctionState.START;
-            for (int i = 0; i < 100; i++) {
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                if(i == 50){
-                    result.state = FunctionState.PAUSE;
-                }
-            }
-            result.result = 300;
-            result.state = FunctionState.SUCCESS;
-        });
-        System.out.println(result.get());
-
-
-
-
+    public FunctionResult<T> thenApplyIfSuccess(IFunction function) {
+        if(this.isSuccess()){
+            try {
+                T d = this.get();
+                return TaskRunner.apply(this.get(),function);
+            }catch (Exception e){}
+        }
+        return this;
     }
 
-
-
+    public FunctionResult<T> thenApplyIfNotSuccess(IFunction function){
+        return this;
+    }
+    public FunctionResult<T> thenApplyIfError(IFunction function){
+        return this;
+    }
 }

@@ -1,8 +1,7 @@
 package cn.dev.task.runner;
 
-import cn.dev.task.TaskResult;
 
-public interface ITaskFunction {
+public interface ITaskFunction extends IFunctionAble {
 
     void execute();
 

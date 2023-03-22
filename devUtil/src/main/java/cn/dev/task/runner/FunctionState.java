@@ -4,6 +4,8 @@ import javax.swing.plaf.PanelUI;
 import java.util.concurrent.CompletableFuture;
 
 public enum FunctionState {
+    /**未执行，未使用  ---by jason @ 2023/3/22 22:45 */
+    NONE,
 
     /**代码 任务 方法被接受，初始化完成，准备执行  ---by jason @ 2023/3/21 11:02 */
     ACCEPT ,

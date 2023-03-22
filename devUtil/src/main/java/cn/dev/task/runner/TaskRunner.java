@@ -17,17 +17,17 @@ public class TaskRunner {
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(8);
 
-    private static void fireLister(int event){
+    private static void fireLister(int event ){
         try {
             for (FunctionTaskListener taskListener : listener) {
                 switch (event) {
-                    case 1:
+                    case START:
                         taskListener.onStart();
                         break;
-                    case 2:
+                    case ERROR:
                         taskListener.onError();
                         break;
-                    case 3:
+                    case COMPLETE:
                         taskListener.onComplete();
                         break;
                     default:
@@ -48,8 +48,9 @@ public class TaskRunner {
      * @param <D>
      * @param <V>
      */
-    public static  <D,V> FunctionResult<V> execute(D d,IFunction<D,V> function){
+    public static  <D,V> FunctionResult<V> apply(D d,IFunction<D,V> function){
         FunctionResult<V> r = new FunctionResult<>();
+        r.fireAccept();
         executor.execute(()->{
             fireLister(START);
             try {
@@ -68,21 +69,35 @@ public class TaskRunner {
     }
 
     public static TaskFuture execute(ITaskFunction taskFunction){
-        var r = new TaskFuture();
-        r.fireAccept();
+        var taskFuture = new TaskFuture();
+        return execute(taskFuture,taskFunction);
+    }
+
+    protected static TaskFuture execute(TaskFuture taskFuture , ITaskFunction taskFunction){
+        taskFuture.fireAccept();
         executor.execute(()->{
             fireLister(START);
-            r.fireStart();
+            taskFuture.fireStart();
             try {
                 taskFunction.execute();
                 fireLister(COMPLETE);
-                r.fireSuccess();
+                taskFuture.fireSuccess();
             }catch (Exception e){
                 fireLister(ERROR);
-                r.fireError(e);
+                taskFuture.fireError(e);
+                e.printStackTrace();
             }
         });
-        return r;
+        return taskFuture;
+    }
+
+
+    public static void main(String[] args) {
+        TaskFuture taskFuture = execute(()->{
+            System.out.println("hello");
+        }).thenExecuteIfError(()->{
+            System.out.println("遇到了异常");
+        });
     }
 
 
