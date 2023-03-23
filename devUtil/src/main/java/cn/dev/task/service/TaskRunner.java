@@ -1,13 +1,14 @@
-package cn.dev.task.runner;
+package cn.dev.task.service;
 
-import cn.dev.task.TaskResult;
+
+import cn.dev.task.api.FunctionTaskListener;
+import cn.dev.task.api.IFunction;
+import cn.dev.task.api.ITaskFunction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
 
 public class TaskRunner {
     private static final int START = 1 ;
@@ -48,7 +49,7 @@ public class TaskRunner {
      * @param <D>
      * @param <V>
      */
-    public static  <D,V> FunctionResult<V> apply(D d,IFunction<D,V> function){
+    public static  <D,V> FunctionResult<V> apply(D d, IFunction<D,V> function){
         FunctionResult<V> r = new FunctionResult<>();
         r.fireAccept();
         executor.execute(()->{

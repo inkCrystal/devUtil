@@ -1,11 +1,12 @@
-package cn.dev.task.runner;
+package cn.dev.task.service;
 
 import cn.dev.commons.datetime.TimeMillisClock;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
+import cn.dev.task.api.IFunction;
 
 import java.io.Serial;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 
 public class FunctionResult<T> extends TaskFuture {
     @Serial
@@ -22,11 +23,21 @@ public class FunctionResult<T> extends TaskFuture {
 
     private long expireTime ;
 
+    private FunctionAbleRecord doneSuccess =null;
+
     /** 构建时候 是 accept   ---by jason @ 2023/3/20 13:33 */
     private FunctionState state = FunctionState.ACCEPT;
 
 
     protected FunctionResult() {
+        super();
+    }
+
+    public FunctionResult(boolean isNull) {
+        super(isNull);
+    }
+    private static final <T> FunctionResult<T> None(){
+        return new FunctionResult(true);
     }
 
     protected FunctionResult(long expireTime) {
@@ -45,7 +56,7 @@ public class FunctionResult<T> extends TaskFuture {
     }
 
 
-    public T get() throws InterruptedException {
+    public T get() {
         long begin = TimeMillisClock.currentTimeMillis();
         long end = TimeMillisClock.currentTimeMillis();
         while (true){
@@ -66,21 +77,36 @@ public class FunctionResult<T> extends TaskFuture {
     }
 
 
-
-    public FunctionResult<T> thenApplyIfSuccess(IFunction function) {
-        if(this.isSuccess()){
-            try {
-                T d = this.get();
-                return TaskRunner.apply(this.get(),function);
-            }catch (Exception e){}
+    @Override
+    protected void fireSuccess() {
+        super.fireSuccess();
+        if (this.doneSuccess !=null) {
+            this.callFunction(this.get(), (IFunction<T, T>) doneSuccess.getFun());
         }
-        return this;
     }
 
-    public FunctionResult<T> thenApplyIfNotSuccess(IFunction function){
-        return this;
+
+    public FunctionResult<T> thenApplyIfSuccess(IFunction<T,T> function) {
+        final Optional<FunctionResult<T>> optional = safeCtrl(() -> {
+            if (this.isSuccess()) {
+                //已经success ，直接执行
+                return callFunction(this.get(), function);
+            }
+            if (this.doneSuccess == null) {
+                this.doneSuccess = new FunctionAbleRecord(new FunctionResult<T>(), function);
+                return (FunctionResult<T>)this.doneSuccess.getR();
+            }
+            return None();
+        });
+        if(optional.isPresent()){
+            return optional.get();
+        }
+        return None();
     }
-    public FunctionResult<T> thenApplyIfError(IFunction function){
-        return this;
+
+    private FunctionResult<T> callFunction(T t,IFunction<T,T> function){
+        return TaskRunner.apply(t,function);
     }
+
+
 }

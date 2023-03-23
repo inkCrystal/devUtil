@@ -1,11 +1,10 @@
-package cn.dev.task.runner;
-
-import javax.swing.plaf.PanelUI;
-import java.util.concurrent.CompletableFuture;
+package cn.dev.task.service;
 
 public enum FunctionState {
-    /**未执行，未使用  ---by jason @ 2023/3/22 22:45 */
+    /** 表示不存在 任务，未构建任务Function  ---by jason @ 2023/3/22 22:45 */
     NONE,
+    /**默认值   等待---by jason @ 2023/3/23 12:57 */
+    WAIT ,
 
     /**代码 任务 方法被接受，初始化完成，准备执行  ---by jason @ 2023/3/21 11:02 */
     ACCEPT ,

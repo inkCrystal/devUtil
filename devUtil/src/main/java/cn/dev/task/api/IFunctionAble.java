@@ -1,4 +1,4 @@
-package cn.dev.task.runner;
+package cn.dev.task.api;
 
 public interface IFunctionAble {
 
