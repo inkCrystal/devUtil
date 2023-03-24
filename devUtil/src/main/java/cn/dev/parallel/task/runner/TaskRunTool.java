@@ -1,16 +1,16 @@
-package cn.dev.task.service;
+package cn.dev.parallel.task.runner;
 
 
-import cn.dev.task.api.FunctionTaskListener;
-import cn.dev.task.api.IFunction;
-import cn.dev.task.api.ITaskFunction;
+import cn.dev.parallel.task.api.FunctionTaskListener;
+import cn.dev.parallel.task.api.IFunction;
+import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TaskRunner {
+public abstract class TaskRunTool {
     private static final int START = 1 ;
     private static final int ERROR = 2;
     private static final  int COMPLETE =3 ;

@@ -1,4 +1,4 @@
-package cn.dev.task.api;
+package cn.dev.parallel.task.api;
 
 public interface IFunction<D,V> extends IFunctionAble{
 

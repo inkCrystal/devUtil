@@ -1,9 +1,9 @@
-package cn.dev.task.service;
+package cn.dev.parallel.task.runner;
 
 import cn.dev.commons.datetime.TimeMillisClock;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
-import cn.dev.task.api.IFunction;
+import cn.dev.parallel.task.api.IFunction;
 
 import java.io.Serial;
 import java.util.Optional;
@@ -105,7 +105,7 @@ public class FunctionResult<T> extends TaskFuture {
     }
 
     private FunctionResult<T> callFunction(T t,IFunction<T,T> function){
-        return TaskRunner.apply(t,function);
+        return TaskRunTool.apply(t,function);
     }
 
 

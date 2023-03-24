@@ -1,6 +1,6 @@
-package cn.dev.task.service;
+package cn.dev.parallel.task.runner;
 
-import cn.dev.task.api.IFunctionAble;
+import cn.dev.parallel.task.api.IFunctionAble;
 
 public record FunctionAbleRecord<R extends TaskFuture>(R r , IFunctionAble functionAble) {
 

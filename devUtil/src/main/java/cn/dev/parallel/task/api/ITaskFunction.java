@@ -1,4 +1,4 @@
-package cn.dev.task.api;
+package cn.dev.parallel.task.api;
 
 
 public interface ITaskFunction extends IFunctionAble {

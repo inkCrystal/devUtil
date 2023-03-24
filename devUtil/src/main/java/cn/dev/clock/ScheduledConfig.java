@@ -1,12 +1,12 @@
 package cn.dev.clock;
 
 import cn.dev.commons.datetime.DateTimeUtil;
-import cn.dev.task.api.ITaskFunction;
+import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.function.Predicate;
 
 /**
  * 定时配置
@@ -30,7 +30,72 @@ public class ScheduledConfig implements Serializable {
     /**需要执行的任务   ---by jason @ 2023/3/23 14:46 */
     private ITaskFunction scheduledTask;
 
-    record timeCnf(int[] monthMatch,int[]hourMatch ,int[]  minuteMatch ,int[] secondMatch){
+
+
+
+    class cnf{
+        int[] monthMatch,dayMatch,hourMatch ,minuteMatch ,secondMatch;
+
+        public static cnf everyYear(int month ,int dayOfMonth){
+            return everyYear(month,dayOfMonth,0);
+        }
+        public static cnf everyYear(int month ,int dayOfMonth,int hour){
+            return everyYear(month,dayOfMonth,hour,0);
+        }
+        public static cnf everyYear(int month ,int dayOfMonth,int hour,int minute ){
+            return everyYear(month,dayOfMonth,hour,minute,0);
+        }
+        public static cnf everyYear(int month ,int dayOfMonth,int hour ,int minute,int second){
+            return null;
+        }
+        public static cnf everyMonth(int dayOfMonth,int hour,int minute ,int second){
+            return everyYear(0,dayOfMonth,hour,minute,second);
+        }
+
+        public static cnf everyMonth(int dayOfMonth,int hour ,int minute ){
+            return everyMonth(dayOfMonth,hour,minute,0);
+        }
+
+        public static cnf everyMonth(int dayOfMonth,int hour){
+            return everyMonth(dayOfMonth,hour,0);
+        }
+        public static cnf everyMonth(int dayOfMonth){
+            return everyMonth(dayOfMonth,0);
+        }
+
+        public static cnf everyDay(int hour, int minute ,int second){
+            return everyMonth(0,hour,minute,second);
+        }
+
+        public static cnf everyDay(int hour,int minute){
+            return everyDay(hour,minute,0);
+        }
+        public static final cnf everyDay(int hour){
+            return everyDay(hour,0);
+        }
+
+        public static final cnf everyHour(int minute ,int second){
+            return everyDay(0,minute,second);
+        }
+
+        public static cnf everyHour(int minute){
+            return everyHour(minute,0);
+        }
+
+        public static cnf everyMinute(int second){
+            return everyHour(0,second);
+        }
+
+    }
+
+    record scheduledConfig(Predicate<LocalDateTime> localDateTimePredicate){
+
+        public boolean test(LocalDateTime localDateTime){
+            return localDateTimePredicate.test(localDateTime);
+        }
+    }
+
+    record timeCnf(int[] monthMatch,int[] dayMatch,int[]hourMatch ,int[]  minuteMatch ,int[] secondMatch){
         public boolean isMatch(LocalDateTime localDateTime){
             int M = localDateTime.getMonthValue();
             int D = localDateTime.getDayOfMonth();
@@ -40,8 +105,7 @@ public class ScheduledConfig implements Serializable {
             if(D>28){
                 int maxM = DateTimeUtil.endOfMonth(localDateTime).getMonthValue();
             }
-
-
+            return true;
         }
 
 
@@ -57,6 +121,7 @@ public class ScheduledConfig implements Serializable {
                     return true;
                 }
             }
+            return false;
 
         }
 

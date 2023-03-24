@@ -1,9 +1,14 @@
-package cn.dev.task;
+package cn.dev.parallel;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ThreadUtil {
-    
+
+    private static final ThreadLocal<Map<String,Object>> commonThreadLocal =new ThreadLocal<>();
+
+
+
     /**调用thread.sleep   ---by jason @ 2023/3/20 13:57 */
     public static void sleep(int time , TimeUnit timeUnit){
         try{

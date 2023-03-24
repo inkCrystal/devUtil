@@ -1,7 +1,7 @@
-package cn.dev.task.service;
+package cn.dev.parallel.task.runner;
 
 import cn.dev.commons.datetime.TimeMillisClock;
-import cn.dev.task.api.ITaskFunction;
+import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -214,7 +214,7 @@ public class TaskFuture  implements Serializable {
 
     /**调用任务执行   ---by jason @ 2023/3/23 9:27 */
     protected static TaskFuture callTask(FunctionAbleRecord record){
-        return TaskRunner.execute(record.r(), (ITaskFunction) record.getFun());
+        return TaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
     }
 
 
