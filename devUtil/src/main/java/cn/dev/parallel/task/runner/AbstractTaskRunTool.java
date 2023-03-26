@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class TaskRunTool {
+public class AbstractTaskRunTool {
     private static final int START = 1 ;
     private static final int ERROR = 2;
     private static final  int COMPLETE =3 ;

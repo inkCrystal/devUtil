@@ -105,7 +105,7 @@ public class FunctionResult<T> extends TaskFuture {
     }
 
     private FunctionResult<T> callFunction(T t,IFunction<T,T> function){
-        return TaskRunTool.apply(t,function);
+        return AbstractTaskRunTool.apply(t,function);
     }
 
 

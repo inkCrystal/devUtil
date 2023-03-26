@@ -214,7 +214,7 @@ public class TaskFuture  implements Serializable {
 
     /**调用任务执行   ---by jason @ 2023/3/23 9:27 */
     protected static TaskFuture callTask(FunctionAbleRecord record){
-        return TaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
+        return AbstractTaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
     }
 
 
