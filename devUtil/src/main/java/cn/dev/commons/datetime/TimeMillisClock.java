@@ -3,7 +3,6 @@ package cn.dev.commons.datetime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -18,7 +17,7 @@ public class TimeMillisClock {
 
     private final AtomicLong now;
 
-    ScheduledThreadPoolExecutor scheduler ;
+    private ScheduledThreadPoolExecutor scheduler ;
 
     /**是否使用  System.currentTimeMillis() 来获取毫秒时间戳---by JasonMao @ 2023/3/17 17:25 */
     private static boolean usingSystemCurrentMillis = false;
@@ -52,11 +51,11 @@ public class TimeMillisClock {
     private vClock clock ;
 
 
+    private static long lastClockFire = 0L;
+
     private void  start(){
         if (clock == null) {
             clock = new vClock();
-        }else{
-            clock.reSet();
         }
         scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread thread = new Thread(r, "MILLIS-CLOCK");
@@ -65,8 +64,23 @@ public class TimeMillisClock {
         });
 
         scheduler.scheduleAtFixedRate(() -> {
-            now.set(System.currentTimeMillis());
-            clock.trySecondInc();
+            long mills = System.currentTimeMillis();
+            now.set( mills);
+            if(lastClockFire == 0 ){
+                clock.reSet();
+                lastClockFire = clock.getLastRest();
+                long remainder = lastClockFire%1000;
+                lastClockFire = lastClockFire -remainder;
+            }else {
+                long duration = mills - lastClockFire;
+                while (duration >= 1000){
+                    duration -= 1000;
+                    clock.trySecondInc();
+                }
+                lastClockFire = mills - duration;
+            }
+
+
         }, period, period, TimeUnit.MILLISECONDS);
     }
 
@@ -89,29 +103,17 @@ public class TimeMillisClock {
 
 
 
-    public static void main(String[] args) throws InterruptedException {
 
 
 
-
-        getInstance();
-        while (true){
-
-            System.out.print(LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss")));
-            System.out.print( "   ");
-            System.out.println(getInstance().getVClock().toString());
-            Thread.sleep(1000);
-
-        }
-
-    }
 
     class vClock{
         private int year, month , dayOfMonth , hour,minute ,second ;
-        private static AtomicInteger atomicInteger ;
+        private long lastRest = 0L;
+        private long waitActive = 1000 ;
 
         protected vClock() {
-            atomicInteger = new AtomicInteger(1000);
+//            atomicInteger = new AtomicInteger(1000);
             LocalDateTime localDateTime = LocalDateTime.now();
             year = localDateTime.getYear();
             month = localDateTime.getMonthValue();
@@ -122,26 +124,24 @@ public class TimeMillisClock {
         }
 
 
-        protected void trySecondInc(){
-            if (atomicInteger.decrementAndGet() == 0) {
-                atomicInteger.set(1000);
-                this.second ++ ;
-                if(this.second == 60){
-                    minuteInc();
-                }
+        private void trySecondInc(){
+            second ++ ;
+            if(second == 60){
+                second = 0 ;
+                this.minuteInc();
             }
-
         }
 
         private void minuteInc(){
             this.minute ++ ;
-            if(this.minute % 15 == 0){
-
+            /** 每五分钟重置一次   ---by jason @ 2023/3/27 14:16 */
+            if(this.minute % 5 == 0){
+                this.reSet();
             }
         }
 
         /**重置 虚拟时钟   ---by jason @ 2023/3/26 14:02 */
-        public void reSet(){
+        private void reSet(){
             LocalDateTime localDateTime = LocalDateTime.now();
             year = localDateTime.getYear();
             month = localDateTime.getMonthValue();
@@ -149,8 +149,13 @@ public class TimeMillisClock {
             hour = localDateTime.getHour();
             minute = localDateTime.getMinute();
             second = localDateTime.getSecond();
+            lastRest = DateTimeUtil.toEpochMilli(localDateTime);
         }
 
+
+        public long getLastRest() {
+            return lastRest;
+        }
 
         public int getYear() {
             return year;
@@ -213,4 +218,42 @@ public class TimeMillisClock {
         }
     }
 
+    /// EOF ------------------
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("让我们开始吧 ");
+        int errorCount = 0;
+        int testCount = 0 ;
+        getInstance();
+        while (true){
+            testCount ++ ;
+            LocalDateTime now = LocalDateTime.now();
+            final String localDateStr = now.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"));
+            final String vClockStr = getInstance().getVClock().toString();
+            if(!vClockStr.equals(localDateStr)){
+                errorCount ++ ;
+                System.out.println("ERROR " + errorCount + " times "   );
+                System.out.println("-------------------------");
+                System.out.println("Local DateTime " + now.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss SSS")));
+                System.out.println("VClockDateTime " + vClockStr);
+                System.out.println("-------------------------");
+            }else{
+                System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" +
+                        "" + vClockStr );
+
+
+            }
+            if (testCount%100 == 0 ) {
+                System.out.println("检测"+(testCount ) + "次 ， 目前出现偏差"+errorCount+"次");
+            }
+
+            Thread.sleep(100);
+
+//                long testT =System.currentTimeMillis() %1000 ;
+//                if (testT > 500 && testT < 600) {
+//                    break;
+//                }
+
+        }
+
+    }
 }

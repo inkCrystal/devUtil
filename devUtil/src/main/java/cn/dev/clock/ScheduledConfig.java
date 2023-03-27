@@ -86,30 +86,10 @@ public class ScheduledConfig implements Serializable {
             return everyHour(0,second);
         }
 
-    }
-
-    record scheduledConfig(Predicate<LocalDateTime> localDateTimePredicate){
-
-        public boolean test(LocalDateTime localDateTime){
-            return localDateTimePredicate.test(localDateTime);
-        }
-    }
-
-    record timeCnf(int[] monthMatch,int[] dayMatch,int[]hourMatch ,int[]  minuteMatch ,int[] secondMatch){
-        public boolean isMatch(LocalDateTime localDateTime){
-            int M = localDateTime.getMonthValue();
-            int D = localDateTime.getDayOfMonth();
-            int H = localDateTime.getHour();
-            int m = localDateTime.getMinute();
-            int s = localDateTime.getSecond();
-            if(D>28){
-                int maxM = DateTimeUtil.endOfMonth(localDateTime).getMonthValue();
-            }
-            return true;
-        }
 
 
-        private static boolean containsZeroOrTarget(int target , int maxValue, int[] array){
+
+        private boolean containsZeroOrTarget(int target , int maxValue, int[] array){
             if(target > maxValue){
                 target = maxValue;
             }
@@ -122,9 +102,30 @@ public class ScheduledConfig implements Serializable {
                 }
             }
             return false;
-
         }
 
+        public boolean testMatch(int month ,int dayOfMonth ,int  hour ,int minute ,int second ) {
+            if (this.containsZeroOrTarget(month, 12, monthMatch)) {
+                int maxDayOfMoth = DateTimeUtil.endOfMonth().getMonthValue();
+                if (this.containsZeroOrTarget(dayOfMonth, maxDayOfMoth, dayMatch)) {
+                    if (this.containsZeroOrTarget(hour, 23, hourMatch)) {
+                        if (this.containsZeroOrTarget(minute, 59, minuteMatch)) {
+                            return this.containsZeroOrTarget(second, 59, secondMatch);
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+
+
+    }
+
+    record scheduledConfig(Predicate<LocalDateTime> localDateTimePredicate){
+        public boolean test(LocalDateTime localDateTime){
+            return localDateTimePredicate.test(localDateTime);
+        }
     }
 
 }

@@ -151,10 +151,9 @@ public class TimeMillisClockTester {
             }
             if(currentMillis - lastCallMillis > 100){
                 long tms = currentMillis % 1000;
-                if(tms > 980 || tms < 25){
-                    System.out.printf("@" + tms + " :");
+                if(tms > 980 || tms < 20){
+//                    System.out.printf("@" + tms + " :");
                     lastCallMillis = currentMillis;
-                    // Second + 1 ;
                     return 1 ;
                 }
             }
