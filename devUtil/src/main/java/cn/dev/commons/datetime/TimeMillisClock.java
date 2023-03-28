@@ -2,6 +2,8 @@ package cn.dev.commons.datetime;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -48,14 +50,14 @@ public class TimeMillisClock {
         this.now = new AtomicLong(System.currentTimeMillis());
         this.start();
     }
-    private vClock clock ;
+    private VTimeClock clock ;
 
 
     private static long lastClockFire = 0L;
 
     private void  start(){
         if (clock == null) {
-            clock = new vClock();
+            clock = new VTimeClock();
         }
         scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread thread = new Thread(r, "MILLIS-CLOCK");
@@ -67,7 +69,7 @@ public class TimeMillisClock {
             long mills = System.currentTimeMillis();
             now.set( mills);
             if(lastClockFire == 0 ){
-                clock.reSet();
+                clock.syncByLocalDateTime();
                 lastClockFire = clock.getLastRest();
                 long remainder = lastClockFire%1000;
                 lastClockFire = lastClockFire -remainder;
@@ -75,7 +77,8 @@ public class TimeMillisClock {
                 long duration = mills - lastClockFire;
                 while (duration >= 1000){
                     duration -= 1000;
-                    clock.trySecondInc();
+                    //秒钟 ++
+                    clock.setSecondOrInc(0,true);
                 }
                 lastClockFire = mills - duration;
             }
@@ -84,7 +87,7 @@ public class TimeMillisClock {
         }, period, period, TimeUnit.MILLISECONDS);
     }
 
-    public vClock getVClock(){
+    public VTimeClock getVClock(){
         return clock;
     }
     /**
@@ -102,17 +105,19 @@ public class TimeMillisClock {
     }
 
 
+    public VTimeClock getClock() {
+        return clock;
+    }
 
-
-
-
-
-    class vClock{
-        private int year, month , dayOfMonth , hour,minute ,second ;
+    class VTimeClock {
+        private int year, month , dayOfMonth , hour,minute ,second =-1;
         private long lastRest = 0L;
-        private long waitActive = 1000 ;
 
-        protected vClock() {
+        private List<VTimeClockListener> listeners =new ArrayList<>();
+
+
+        protected VTimeClock() {
+
 //            atomicInteger = new AtomicInteger(1000);
             LocalDateTime localDateTime = LocalDateTime.now();
             year = localDateTime.getYear();
@@ -123,37 +128,40 @@ public class TimeMillisClock {
             second = localDateTime.getSecond();
         }
 
-
-        private void trySecondInc(){
-            second ++ ;
-            if(second == 60){
-                second = 0 ;
-                this.minuteInc();
+        public void bindListener(VTimeClockListener listener){
+            if(listener !=null) {
+                boolean contains = false;
+                for (VTimeClockListener t : this.listeners) {
+                    if (t.listenerInfo().equals(listener.listenerInfo())) {
+                        contains =true;
+                        break;
+                    }
+                }
+                if(contains!=true){
+                    this.listeners.add(listener);
+                }
             }
         }
 
-        private void minuteInc(){
-            this.minute ++ ;
-            /** 每五分钟重置一次   ---by jason @ 2023/3/27 14:16 */
-            if(this.minute % 5 == 0){
-                this.reSet();
-            }
-        }
 
-        /**重置 虚拟时钟   ---by jason @ 2023/3/26 14:02 */
-        private void reSet(){
+
+
+        /**同步虚拟时钟   ---by jason @ 2023/3/26 14:02 */
+        private void syncByLocalDateTime(){
             LocalDateTime localDateTime = LocalDateTime.now();
-            year = localDateTime.getYear();
-            month = localDateTime.getMonthValue();
-            dayOfMonth = localDateTime.getDayOfMonth();
-            hour = localDateTime.getHour();
-            minute = localDateTime.getMinute();
-            second = localDateTime.getSecond();
+            this.setYear(localDateTime.getYear());
+            this.setMonth(localDateTime.getMonthValue());
+            this.setDayOfMonth(localDateTime.getDayOfMonth());
+            this.setHour(localDateTime.getHour());
+            this.setMinuteOrInc(localDateTime.getMinute(),false);
+            this.setSecondOrInc(localDateTime.getSecond(),false);
             lastRest = DateTimeUtil.toEpochMilli(localDateTime);
         }
 
 
-        public long getLastRest() {
+
+
+        protected long getLastRest() {
             return lastRest;
         }
 
@@ -180,6 +188,84 @@ public class TimeMillisClock {
         public int getSecond() {
             return second;
         }
+
+        private void setYear(int year) {
+            if(this.year != year) {
+                this.year = year;
+                this.fireListener(dateTimePropType.YEAR);
+            }
+        }
+
+        private void setMonth(int month) {
+            if(this.month != month){
+                this.month = month;
+                this.fireListener(dateTimePropType.MONTH);
+            }
+        }
+
+        private void setDayOfMonth(int dayOfMonth) {
+            if(this.dayOfMonth != dayOfMonth){
+                this.dayOfMonth = dayOfMonth;
+                this.fireListener(dateTimePropType.DAY_OF_MOTH);
+            }
+        }
+
+        private void setHour(int hour) {
+            if(this.hour != hour){
+                this.hour = hour;
+                this.fireListener(dateTimePropType.HOUR);
+            }
+        }
+
+        private void setMinuteOrInc(int m ,boolean inc ) {
+
+            if(inc){
+                this.minute ++ ;
+                /** 每五分钟校对 一次   ---by jason @ 2023/3/27 14:16 */
+                if(this.minute % 5 == 0){
+                    this.syncByLocalDateTime();
+                }
+                this.fireListener(dateTimePropType.MONTH);
+            } else if(this.minute!=m ){
+                this.minute = m;
+                this.fireListener(dateTimePropType.MONTH);
+            }
+        }
+
+
+        private void setSecondOrInc(int s ,boolean inc ) {
+            if (inc){
+                this.second ++ ;
+                if(this.second == 60){
+                    this.second = 0 ;
+                    this.setMinuteOrInc(0,true);
+                    this.fireListener(dateTimePropType.SECOND);
+                }
+            }else {
+                if (this.second!=s) {
+                    this.second = s ;
+                    this.fireListener(dateTimePropType.SECOND);
+                }
+            }
+        }
+
+
+
+
+        private void fireListener(dateTimePropType dateTimePropType){
+            switch (dateTimePropType){
+                case YEAR -> listeners.stream().forEach(t->t.onYearChange(this.getYear()));
+                case MONTH -> listeners.stream().forEach(t->t.onMonthChange(this.getYear(),this.getMonth()));
+                case DAY_OF_MOTH -> listeners.stream().forEach(t->t.onDayOfMonthChange(this.getYear(),this.getMonth(),this.getDayOfMonth()));
+                case HOUR -> listeners.stream().forEach(t->t.onHourChange(this.getYear(),this.getMonth(),this.getDayOfMonth(),this.getHour()));
+                case MINUTE -> listeners.stream().forEach(t->t.onMinuteChange(this.getYear(),this.getMonth(),this.getDayOfMonth(),this.getHour(),this.getMinute()));
+                case SECOND -> listeners.stream().forEach(t-> t.onSecondChange(this.getYear(),this.getMonth(),this.getDayOfMonth(),this.getHour(),this.getMinute(),this.getSecond()));
+                default -> {
+                }
+            }
+        }
+
+
 
         public String toString(){
             var delimiter ='-';
@@ -216,14 +302,35 @@ public class TimeMillisClock {
         public String toDateString(){
             return toDateString('-');
         }
+
+
+
+
+
+        /**
+         * 返回 年 月 日 时 分 秒 的int数组
+         * @return
+         */
+        public int[] getTimeArray(){
+            return new int[]{this.year,this.month,this.dayOfMonth,this.hour,this.minute,this.second};
+        }
+    }
+
+    enum dateTimePropType{
+        YEAR ,MONTH ,DAY_OF_MOTH,HOUR,MINUTE,SECOND
     }
 
     /// EOF ------------------
     public static void main(String[] args) throws InterruptedException {
+
+
+        if(1>0){
+            return;
+        }
         System.out.println("让我们开始吧 ");
         int errorCount = 0;
         int testCount = 0 ;
-        getInstance();
+
         while (true){
             testCount ++ ;
             LocalDateTime now = LocalDateTime.now();
@@ -248,12 +355,10 @@ public class TimeMillisClock {
 
             Thread.sleep(100);
 
-//                long testT =System.currentTimeMillis() %1000 ;
-//                if (testT > 500 && testT < 600) {
-//                    break;
-//                }
 
         }
 
     }
+
+
 }

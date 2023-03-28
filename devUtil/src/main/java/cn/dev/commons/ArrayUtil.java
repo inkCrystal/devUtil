@@ -1,0 +1,516 @@
+package cn.dev.commons;
+
+import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import cn.dev.commons.verification.VerificationTool;
+
+public class ArrayUtil {
+
+
+    private static <T> T[]genericsArray(int len ,T[]... array){
+        Class<T> targetClass = null;
+        for (T[] ts : array) {
+            for (T t : ts) {
+                targetClass = (Class<T>) t.getClass();
+                return genericsArray(targetClass,len);
+            }
+        }
+        throw new RuntimeException("无法推断出数组的正确类型");
+    }
+
+    private static  <T> T[] genericsArray(Class<T> targetClass , int len){
+        return (T[]) Array.newInstance(targetClass, len);
+    }
+
+    private static <T> Class<T> findTargetClass(T[] array){
+        if(array ==null){
+            throw new RuntimeException("无法推断准确的范型数据，可能数组为空或者全部为NULL");
+        }
+        for (T t : array) {
+            if (t!=null) {
+                return (Class<T>) t.getClass();
+            }
+        }
+        throw new RuntimeException("无法推断准确的范型数据，可能数组为空或者全部为NULL");
+    }
+
+    private static <T> T[] ToTArray(Object[] array ,Class<T> targetClass){
+        final T[] ts = genericsArray(targetClass, array.length);
+        for (int i = 0; i < array.length; i++) {
+            ts[i]= (T) array[i];
+        }
+        return ts;
+    }
+
+    private static void throwIfAllNull(Object[] array){
+        if (isAllNull(array)) {
+            throw new RuntimeException("当前数组全部为NULL");
+        }
+    }
+
+    /**
+     * 去除重复项目
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static<T> T[] distinct(T[] array){
+        VerificationTool.isNotNull(array);
+        if (array.length == 0) {
+            return array;
+        }
+        Class<T> targetClass = findTargetClass(array);
+        Object[] objects = Arrays.stream(array).distinct().toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+    /**
+     * 移除 NULL
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static  <T> T[]  removeNull(T[] array){
+        VerificationTool.isNotNull(array);
+        if(isAllNull(array)){
+            throw new RuntimeException("当前数组的值全部为NULL");
+        }
+        Class<T> targetClass = findTargetClass(array);
+        Object[] objects = Arrays.stream(array).filter(Objects::nonNull).toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+    public static boolean isAllNull(Object[] array){
+        if (array == null) {
+            return true;
+        }
+        for (Object o : array) {
+            if (o!=null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 数组顺序排序
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static  <T> T[]  stored(T[] array){
+        VerificationTool.isNotNull(array);
+        if(isAllNull(array)){
+            throw new RuntimeException("当前数组的值全部为NULL");
+        }
+        Class<T> targetClass = findTargetClass(array);
+        Object[] objects = Arrays.stream(array).filter(Objects::nonNull).sorted().toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+
+    /**
+     * 去重并排序
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static  <T> T[] distinctStored(T[] array){
+        VerificationTool.isNotNull(array);
+        Class<T> targetClass = findTargetClass(array);
+        Object[] objects = Arrays.stream(array).filter(Objects::nonNull).distinct().sorted().toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+
+    /**
+     * 倒叙 排序数组
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static  <T> T[]  storedDesc(T[] array){
+        VerificationTool.isNotNull(array);
+        return reverse(stored(array));
+    }
+
+    /**
+     * 去掉重复数据，并 倒叙排序
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static  <T> T[]  distinctStoredDesc(T[] array){
+        VerificationTool.isNotNull(array);
+        return reverse(distinctStored(array));
+    }
+
+    /**
+     * 数组反转顺序
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] reverse(T[] array){
+        VerificationTool.isNotNull(array);
+        array = removeNull(array);
+        for (int i = 0; i < array.length/2; i++) {
+            T t = array[i];
+            array[i] =array[array.length -1 -i];
+            array[array.length -1 -i] = t ;
+        }
+        return array;
+    }
+
+    /**
+     * 插入到指定位置
+     * @param array
+     * @param t
+     * @param index
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] insertToIndex(T[] array , T t ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isNotMatch(index,(i)->{
+           return i >array.length;
+        });
+        final Class<?> aClass = t.getClass();
+        T[] na = (T[]) genericsArray(aClass, array.length+1);
+        for (int i = 0; i < array.length + 1; i++) {
+            if(i < index) {
+                na[i] = array[i];
+            }else if(i == index){
+                na[i] = t;
+            }else{
+                na[i] = array[i -1];
+            }
+        }
+        return  na;
+    }
+
+    /**
+     * 插入到数组开头
+     * @param array
+     * @param t
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] insertToFirst(T[] array , T t){
+        VerificationTool.isNotNull(array);
+        return insertToIndex(array, t, 0);
+    }
+
+    /**
+     * 插入到数组末尾
+     * @param array
+     * @param t
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] insertToLast(T[] array , T t){
+        return insert(array,t);
+    }
+
+    public static <T> T[] insert(T[] array , T t){
+        VerificationTool.isNotNull(array);
+        return insertToIndex(array,t,array.length);
+    }
+
+    public static <T> T[] removeByIndex(T[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index,t->t<array.length);
+        array[index] = null;
+        return removeNull(array);
+    }
+
+    public static Integer[] ofBasicDataArray(int[] array){
+        VerificationTool.isNotNull(array);
+        Integer[] arr = new Integer[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static Float[] ofBasicDataArray(float[] array){
+        VerificationTool.isNotNull(array);
+        Float[] arr = new Float[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+    public static Double[] ofBasicDataArray(double[] array){
+        VerificationTool.isNotNull(array);
+        Double[] arr = new Double[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+
+    public static Long[] ofBasicDataArray(long[] array){
+        VerificationTool.isNotNull(array);
+        Long[] arr = new Long[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static Short[] ofBasicDataArray(short[] array){
+        VerificationTool.isNotNull(array);
+        Short[] arr = new Short[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static Byte[] ofBasicDataArray(byte[] array){
+        VerificationTool.isNotNull(array);
+        Byte[] arr = new Byte[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static Character[] ofBasicDataArray(char[] array){
+        VerificationTool.isNotNull(array);
+        Character[] arr = new Character[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static int[] toBasicDataArray(Integer[] array){
+        VerificationTool.isNotNull(array);
+        int[] arr =new int[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static long[] toBasicDataArray(Long[] array){
+        VerificationTool.isNotNull(array);
+        long[] arr =new long[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+    public static double[] toBasicDataArray(Double[] array){
+        VerificationTool.isNotNull(array);
+        double[] arr =new double[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static short[] toBasicDataArray(Short[] array){
+        VerificationTool.isNotNull(array);
+        short[] arr =new short[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    public static char[] toBasicDataArray(Character[] array){
+        VerificationTool.isNotNull(array);
+        char[] arr =new char[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+
+    public static byte[] toBasicDataArray(Byte[] array){
+        VerificationTool.isNotNull(array);
+        byte[] arr =new byte[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+
+    /**
+     * 转为 基础数据类型数组
+     * @param array
+     * @return
+     */
+    public static float[] toBasicDataArray(Float[] array){
+        VerificationTool.isNotNull(array);
+        float[] arr =new float[array.length];
+        for (int i = 0; i < array.length; i++) {
+            arr[i] = array[i];
+        }
+        return arr;
+    }
+
+    /**
+     * 合并2个数组
+     * @param arr1
+     * @param arr2
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] mergeArray(T[] arr1,T[] arr2){
+        return mergeArrays(arr1,arr1);
+    }
+
+    /**
+     * 合并多个数组 为一个新的数组
+     * @param arrays
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] mergeArrays(T[]... arrays){
+        VerificationTool.isNotNull(arrays);
+        int totalLength =  0 ;
+        for (T[] arr : arrays) {
+            VerificationTool.isNotNull(arr);
+            totalLength += arr.length;
+        }
+        T[] na =  genericsArray(totalLength,arrays);
+        int index = 0;
+        for (T[] arr : arrays) {
+            for (T t : arr) {
+                na[index] = t;
+                index ++ ;
+            }
+        }
+        return na;
+    }
+
+
+    /**
+     * 是否包含NULL
+     * @param array
+     * @return
+     */
+    public static boolean isContainsNull(Object[] array){
+        for (Object o : array) {
+            if (o ==null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static <T> T[] removeIf(T[] array ,Predicate predicate){
+        VerificationTool.isNotNull(array);
+        final Class<T> targetClass = findTargetClass(array);
+        Object[] objects = Arrays.stream(array)
+                .filter(t -> !predicate.test(t)).toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+    /**
+     * 找出最小值
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static <T extends Comparable> T findMinValue(T[] array){
+        VerificationTool.isNotNull(array);
+        VerificationTool.arrayIsNotEmpty(array);
+        T min = null;
+        for (T t : array) {
+            if(min == null){
+                min = t ;
+            }
+            if (t.compareTo(min)<0) {
+                min = t;
+            }
+        }
+        return min;
+    }
+
+    /**
+     * 找出最大值
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static <T extends Comparable> T findMaxValue(T[] array){
+        VerificationTool.isNotNull(array);
+        VerificationTool.arrayIsNotEmpty(array);
+        T max = null;
+        for (T t : array) {
+            if(max == null){
+                max = t ;
+            }
+            if (t.compareTo(max)>0) {
+                max = t;
+            }
+        }
+        return max;
+    }
+
+    /**
+     * 统计 符合条件的 数量
+     * @param array
+     * @param predicate
+     * @return
+     * @param <T>
+     */
+    public static <T> long count( T[] array,Predicate<T> predicate){
+        VerificationTool.isNotNull(array);
+        return Arrays.stream(array).filter(predicate).count();
+    }
+
+    /**
+     * 按条件 筛选出 子数组
+     * @param array
+     * @param predicate
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] subArray(T[] array ,Predicate<T> predicate){
+        VerificationTool.isNotNull(array);
+        final Class<T> targetClass = findTargetClass(array);
+        final Object[] objects = Arrays.stream(array).filter(predicate).toArray();
+        return ToTArray(objects,targetClass);
+    }
+
+
+    public static <T> T[] changeValuesByFunction(T[] array , Function<T,T> function){
+        VerificationTool.isNotNull(array);
+        for (int i = 0; i < array.length; i++) {
+            array[i] = function.apply(array[i]);
+        }
+        return array;
+    }
+
+
+
+    public static void main(String[] args) {
+        Integer[] ar = new Integer[]{1,2,3,4,1};
+        Integer[] ar2 = new Integer[]{1,2,3,4,1};
+
+        final Integer[] integers = changeValuesByFunction(ar,(x)->x+2);
+        System.out.println(Arrays.toString(integers));
+
+
+//        System.out.println(Arrays.toString(subArray(ar, (t) -> t < 3)));
+//        final Integer[] values = mergeArray(ar,ar);
+//        System.out.println(Arrays.toString(values));
+
+    }
+
+}
