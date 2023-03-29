@@ -120,6 +120,33 @@ public class StrUtils {
     }
 
 
+
+    public static String toHexString(Number v ){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("0x");
+        String hex = Long.toHexString(v.longValue());
+
+        int appendLength = 0 ;
+
+
+        if(hex.length() <2){
+            appendLength = 2 - hex.length();
+        }else if(hex.length() < 4){
+            appendLength = 4- hex.length();
+        }else if(hex.length()<8){
+            appendLength = 8 - hex.length();
+        }
+        while (appendLength  > 0){
+            appendLength --;
+            stringBuilder.append("0");
+        }
+
+        stringBuilder.append(hex);
+        return stringBuilder.toString();
+    }
+
+
+
     public static void main(String[] args) {
         StringBuilder sb =new StringBuilder("");
         for (int i = 0; i < 65566; i++) {

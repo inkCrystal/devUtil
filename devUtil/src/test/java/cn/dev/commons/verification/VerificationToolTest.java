@@ -9,53 +9,53 @@ class VerificationToolTest {
 
     @Test
     void isNotNull() {
-        Assertions.assertFalse(VerificationTool.isNotNull(null).isValid());
-        Assertions.assertTrue(VerificationTool.isNotNull("").isValid());
+        Assertions.assertFalse(VerificationHelper.isNotNull(null).isValid());
+        Assertions.assertTrue(VerificationHelper.isNotNull("").isValid());
     }
 
     @Test
     void collectionIsNotEmpty() {
-        assert !VerificationTool.collectionIsNotEmpty(null).isValid();
-        assert !VerificationTool.collectionIsNotEmpty(new ArrayList()).isValid();
-        Assertions.assertTrue( VerificationTool.collectionIsNotEmpty(List.of("","")).isValid());
+        assert !VerificationHelper.collectionIsNotEmpty(null).isValid();
+        assert !VerificationHelper.collectionIsNotEmpty(new ArrayList()).isValid();
+        Assertions.assertTrue( VerificationHelper.collectionIsNotEmpty(List.of("","")).isValid());
     }
 
     @Test
     void arrayIsNotEmpty() {
-        assert !VerificationTool.arrayIsNotEmpty(null).isValid();
-        assert !VerificationTool.arrayIsNotEmpty(new String[]{}).isValid();
-        assert VerificationTool.arrayIsNotEmpty( new String[]{"", ":"}).isValid();
+        assert !VerificationHelper.arrayIsNotEmpty(null).isValid();
+        assert !VerificationHelper.arrayIsNotEmpty(new String[]{}).isValid();
+        assert VerificationHelper.arrayIsNotEmpty( new String[]{"", ":"}).isValid();
     }
 
     @Test
     void mapContainsKey() {
         Map map = Map.of("k","b");
-        assert VerificationTool.mapContainsKey(map, "k").isValid();
-        assert !VerificationTool.mapContainsKey(null, "k").isValid();
-        assert !VerificationTool.mapContainsKey(new HashMap(), "b").isValid();
-        assert !VerificationTool.mapContainsKey(map, "b").isValid();
+        assert VerificationHelper.mapContainsKey(map, "k").isValid();
+        assert !VerificationHelper.mapContainsKey(null, "k").isValid();
+        assert !VerificationHelper.mapContainsKey(new HashMap(), "b").isValid();
+        assert !VerificationHelper.mapContainsKey(map, "b").isValid();
     }
 
     @Test
     void mapIsNotEmpty() {
         Map map =new HashMap();
         map.put("k",1);
-        assert VerificationTool.mapIsNotEmpty(map).isValid();
-        assert !VerificationTool.mapIsNotEmpty(null).isValid();
-        assert !VerificationTool.mapIsNotEmpty(Map.of()).isValid();
+        assert VerificationHelper.mapIsNotEmpty(map).isValid();
+        assert !VerificationHelper.mapIsNotEmpty(null).isValid();
+        assert !VerificationHelper.mapIsNotEmpty(Map.of()).isValid();
     }
 
     @Test
     void isNotMatch() {
-        assert !VerificationTool.isNotMatch(1, (x) -> x > 0).isValid();
-        assert !VerificationTool.isNotMatch(null, (x) -> x.equals(1)).isValid();
-        assert VerificationTool.isNotMatch(1, x -> x < 0).isValid();
+        assert !VerificationHelper.isNotMatch(1, (x) -> x > 0).isValid();
+        assert !VerificationHelper.isNotMatch(null, (x) -> x.equals(1)).isValid();
+        assert VerificationHelper.isNotMatch(1, x -> x < 0).isValid();
     }
 
     @Test
     void isMatch() {
-        assert VerificationTool.isMatch(1, x -> x == 1).isValid();
-        assert !VerificationTool.isMatch(1, x -> x > 1).isValid();
-        assert !VerificationTool.isMatch(null, x -> x.equals(1)).isValid();
+        assert VerificationHelper.isMatch(1, x -> x == 1).isValid();
+        assert !VerificationHelper.isMatch(1, x -> x > 1).isValid();
+        assert !VerificationHelper.isMatch(null, x -> x.equals(1)).isValid();
     }
 }

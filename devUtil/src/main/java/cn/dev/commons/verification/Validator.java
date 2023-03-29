@@ -41,4 +41,5 @@ public record Validator<T>(T data, Predicate<T> validationPredicate) {
     public VerificationResult<T> toResult(){
         return toResult("对象或数据未通过校验");
     }
+
 }

@@ -1,5 +1,6 @@
 package cn.dev.commons.verification;
 
+import cn.dev.commons.string.StrUtils;
 import cn.dev.exception.VerificationException;
 
 /**
@@ -44,9 +45,20 @@ public record VerificationResult<T>(T data , boolean result, String errorMessage
 
 
     public void throwIfNotSuccess(){
-        if (!this.result) {
+        if (!this.isValid()) {
             throw throwable;
         }
+    }
+
+    public void throwIfNotSuccess(String message){
+        if(StrUtils.isEmpty(message)){
+            throwIfNotSuccess();
+        }else {
+            if(!this.isValid()) {
+                throw new VerificationException(message, throwable);
+            }
+        }
+
     }
 
 
