@@ -1,13 +1,13 @@
 package cn.dev.commons;
 
-import java.io.Serializable;
+import cn.dev.commons.verification.VerificationTool;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import cn.dev.commons.verification.VerificationTool;
 
 public class ArrayUtil {
 
@@ -224,10 +224,77 @@ public class ArrayUtil {
 
     public static <T> T[] removeByIndex(T[] array ,int index){
         VerificationTool.isNotNull(array);
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index,t->t<array.length);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
         array[index] = null;
         return removeNull(array);
+    }
+
+    public static long[] removeByIndex(long[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        long[] na =new long[array.length -1];
+        for (int i = 0; i < na.length; i++) {
+            if(i<index){
+                na[i] = array[i];
+            }else{
+                na[i] = array[i+1];
+            }
+        }
+        return na;
+    }
+    public static int[] removeByIndex(int[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        int[] na =new int[array.length -1];
+        for (int i = 0; i < na.length; i++) {
+            if(i<index){
+                na[i] = array[i];
+            }else{
+                na[i] = array[i+1];
+            }
+        }
+        return na;
+    }
+
+    public static double[] removeByIndex(double[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        double[] na =new double[array.length -1];
+        for (int i = 0; i < na.length; i++) {
+            if(i<index){
+                na[i] = array[i];
+            }else{
+                na[i] = array[i+1];
+            }
+        }
+        return na;
+    }
+
+    public static float[] removeByIndex(float[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        float[] na =new float[array.length -1];
+        for (int i = 0; i < na.length; i++) {
+            if(i<index){
+                na[i] = array[i];
+            }else{
+                na[i] = array[i+1];
+            }
+        }
+        return na;
+    }
+    public static short[] removeByIndex(short[] array ,int index){
+        VerificationTool.isNotNull(array);
+        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        short[] na =new short[array.length -1];
+        for (int i = 0; i < na.length; i++) {
+            if(i<index){
+                na[i] = array[i];
+            }else{
+                na[i] = array[i+1];
+            }
+        }
+        return na;
     }
 
     public static Integer[] ofBasicDataArray(int[] array){
@@ -412,7 +479,14 @@ public class ArrayUtil {
         return false;
     }
 
-    public static <T> T[] removeIf(T[] array ,Predicate predicate){
+    /**
+     * 一处匹配规则的项目 ，返回一个
+     * @param array
+     * @param predicate
+     * @return
+     * @param <T>
+     */
+    public static <T> T[] removeIfMatch(T[] array ,Predicate predicate){
         VerificationTool.isNotNull(array);
         final Class<T> targetClass = findTargetClass(array);
         Object[] objects = Arrays.stream(array)
@@ -469,7 +543,7 @@ public class ArrayUtil {
      * @return
      * @param <T>
      */
-    public static <T> long count( T[] array,Predicate<T> predicate){
+    public static <T> long countByPredicate( T[] array,Predicate<T> predicate){
         VerificationTool.isNotNull(array);
         return Arrays.stream(array).filter(predicate).count();
     }
@@ -481,7 +555,7 @@ public class ArrayUtil {
      * @return
      * @param <T>
      */
-    public static <T> T[] subArray(T[] array ,Predicate<T> predicate){
+    public static <T> T[] subArrayByPredicate(T[] array ,Predicate<T> predicate){
         VerificationTool.isNotNull(array);
         final Class<T> targetClass = findTargetClass(array);
         final Object[] objects = Arrays.stream(array).filter(predicate).toArray();
@@ -489,6 +563,14 @@ public class ArrayUtil {
     }
 
 
+
+    /**
+     * 通过 function 修改 array中的值
+     * @param array
+     * @param function
+     * @return
+     * @param <T>
+     */
     public static <T> T[] changeValuesByFunction(T[] array , Function<T,T> function){
         VerificationTool.isNotNull(array);
         for (int i = 0; i < array.length; i++) {
@@ -498,19 +580,79 @@ public class ArrayUtil {
     }
 
 
-
-    public static void main(String[] args) {
-        Integer[] ar = new Integer[]{1,2,3,4,1};
-        Integer[] ar2 = new Integer[]{1,2,3,4,1};
-
-        final Integer[] integers = changeValuesByFunction(ar,(x)->x+2);
-        System.out.println(Arrays.toString(integers));
-
-
-//        System.out.println(Arrays.toString(subArray(ar, (t) -> t < 3)));
-//        final Integer[] values = mergeArray(ar,ar);
-//        System.out.println(Arrays.toString(values));
-
+    /**
+     * 获取任意一个 不是 null的数据
+     * @param array
+     * @return
+     * @param <T>
+     */
+    public static <T> Optional<T> getAnyNotNull(T[] array){
+        VerificationTool.isNotNull(array);
+        return Arrays.stream(array)
+                .filter(Objects::nonNull)
+                .findAny();
     }
+
+    /**
+     * 按条件从 数据源中 初始化 array
+     * @param predicate
+     * @param values
+     * @param <T>
+     */
+    public static <T> T[] ofPredicate(Predicate<T> predicate ,T... values){
+        return subArrayByPredicate(values, predicate);
+    }
+
+
+    public static boolean isContains(int[] arr ,int value){
+        VerificationTool.isNotNull(arr);
+        for (int i : arr) {
+            if(i == value){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static boolean isContains(long[] arr ,long value){
+        VerificationTool.isNotNull(arr);
+        for (var i : arr) {
+            if(i == value){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isContains(short[] arr ,short value){
+        VerificationTool.isNotNull(arr);
+        for (var i : arr) {
+            if(i == value){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isContains(double[] arr ,double value){
+        VerificationTool.isNotNull(arr);
+        for (var i : arr) {
+            if(i == value){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static boolean isContains(float[] arr ,float value){
+        VerificationTool.isNotNull(arr);
+        for (var i : arr) {
+            if(i == value){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

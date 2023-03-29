@@ -187,6 +187,17 @@ public class DateTimeUtil {
     }
 
 
+    /**
+     * 计算指定月份的最大天数
+     * @param year
+     * @param month
+     * @return
+     */
+    public static int maxValueForDayOfMonth(int year, int month){
+        LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0);
+        return endOfMonth(date).getDayOfMonth();
+    }
+
     /*>>>>>>>>>>>>>>>>>>>>>>-一日当中的最大秒数-<<<<<<<<<<<<<<<<<<<<<<<*/
 
 
