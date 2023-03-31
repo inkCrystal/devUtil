@@ -1,7 +1,7 @@
 package cn.dev.core.model;
 
 import cn.dev.commons.id.IdHelper;
-import cn.dev.commons.datetime.TimeMillisClock;
+import cn.dev.clock.TimeMillisClock;
 import cn.dev.exception.IdentityJoinException;
 
 import java.io.Serial;

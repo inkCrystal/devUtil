@@ -1,6 +1,6 @@
-package cn.dev.commons.datetime;
+package cn.dev.clock.listener;
 
-public interface VTimeClockListener {
+public interface ITimeClockListener {
 
     default String listenerInfo(){
         return getClass().toString();

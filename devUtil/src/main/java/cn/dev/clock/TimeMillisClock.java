@@ -1,4 +1,7 @@
-package cn.dev.commons.datetime;
+package cn.dev.clock;
+
+import cn.dev.clock.listener.ITimeClockListener;
+import cn.dev.commons.datetime.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -113,7 +116,7 @@ public class TimeMillisClock {
         private int year, month , dayOfMonth , hour,minute ,second =-1;
         private long lastRest = 0L;
 
-        private List<VTimeClockListener> listeners =new ArrayList<>();
+        private List<ITimeClockListener> listeners =new ArrayList<>();
 
 
         protected VTimeClock() {
@@ -128,10 +131,10 @@ public class TimeMillisClock {
             second = localDateTime.getSecond();
         }
 
-        public void bindListener(VTimeClockListener listener){
+        public void bindListener(ITimeClockListener listener){
             if(listener !=null) {
                 boolean contains = false;
-                for (VTimeClockListener t : this.listeners) {
+                for (ITimeClockListener t : this.listeners) {
                     if (t.listenerInfo().equals(listener.listenerInfo())) {
                         contains =true;
                         break;

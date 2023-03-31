@@ -1,6 +1,6 @@
 package cn.dev.parallel.task.runner;
 
-import cn.dev.commons.datetime.TimeMillisClock;
+import cn.dev.clock.TimeMillisClock;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
 import cn.dev.parallel.task.api.IFunction;

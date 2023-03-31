@@ -1,12 +1,15 @@
-package cn.dev.clock;
+package cn.dev.clock.schedule;
 
+import cn.dev.clock.TimeMillisClock;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.datetime.DateTimeUtil;
-import cn.dev.commons.datetime.TimeMillisClock;
+import cn.dev.commons.verification.VerificationTool;
+import cn.dev.exception.ScheduleConfigException;
+import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -29,22 +32,70 @@ public class ScheduledConfig {
     /**
      * 失效时间 ，设置失效时间后，将会在 到达指定事件后失效
      */
-    private long expireTime ;
-    private boolean killState = false;
+    private long expireTime = Long.MAX_VALUE;
 
+    /**
+     * 最大允许执行次数，-1表示 不限制
+     */
+    private int maxFireCount =-1 ;
     /**
      * 触发次数
      */
     private long fireCount = 0 ;
 
     /**
+     * 下次触发的时间戳 （变化的 ）
+     */
+    private long nextFireTimeMills ;
+
+    /**
      * 最后触发时间
      */
     private long lastFireTime = 0;
+
+
     /**
-     * 设置 随机 秒数，如果执行秒 被 设置为 0
+     * 有效状态
      */
-    private boolean randomSecondIfSecondIsZero =false;
+    private boolean ableState = false;
+
+    private ITaskFunction scheduledTask = null;
+
+
+    /**
+     * 启用配置
+     * @param taskFunction
+     * @return
+     * @throws RuntimeException
+     */
+    protected boolean enable(ITaskFunction taskFunction) throws ScheduleConfigException{
+        this.safeCheck();
+        VerificationTool.isNotNull(taskFunction);
+        this.scheduledTask = taskFunction;
+        this.ableState =true;
+        return true;
+    }
+
+    private void configSafeCheck(String typeConfigName, long value , int startIndex ) throws ScheduleConfigException {
+        boolean[] arr = BinaryTool.toBoolArray(value);
+        int count = 0;
+        for (int i = startIndex; i < arr.length; i++) {
+            if(arr[i]){
+                count ++ ;
+            }
+        }
+        if(count == 0){
+            throw new ScheduleConfigException(typeConfigName + "缺失可以匹配的明确时间点");
+        }
+    }
+    private void safeCheck() throws ScheduleConfigException {
+        this.configSafeCheck("配置的可执行月：",getMonthConfig(),1);
+        this.configSafeCheck("配置的可执行日：",getDayOfMonthConfig(),1);
+        this.configSafeCheck("配置的可执行时：",this.hourConfig,0);
+        this.configSafeCheck("配置的可执行分：",this.hourConfig,0);
+
+    }
+
 
 
     /**
@@ -52,16 +103,31 @@ public class ScheduledConfig {
      * @return
      */
     public boolean isAvailable(){
-        return   !killState && TimeMillisClock.currentMillis() < this.expireTime;
+        if(ableState &&  TimeMillisClock.currentMillis() < this.expireTime){
+            if(maxFireCount > 0 ){
+                return fireCount < maxFireCount;
+            }
+            return true;
+        }
+        return false;
     }
 
-    public void stop(){
-        this.killState =true;
-    }
 
 
     public void setExpireTime(long expireTime) {
-        this.expireTime = expireTime;
+        if(expireTime > TimeMillisClock.currentTimeMillis()) {
+            this.expireTime = expireTime;
+        }
+    }
+
+    /**
+     * 设置最大允许执行次数
+     * @param maxTime
+     */
+    public void setMaxRuntimes(int maxTime){
+        if(maxFireCount <0 && maxTime > 0) {
+            this.maxFireCount = maxTime;
+        }
     }
 
 
@@ -183,7 +249,14 @@ public class ScheduledConfig {
     }
 
 
-    public LocalDateTime nextFireTime(){
+    /**
+     * 下次触发 的 时间 ，不对外开放
+     * @return
+     */
+    private Optional<LocalDateTime> computeNextFireLocalDateTime(){
+        if (!this.isAvailable()) {
+            return Optional.ofNullable(null);
+        }
         LocalDateTime dt =DateTimeUtil.now();
         int second = dt.getSecond();
         int fireSecond = this.secondConfig;
@@ -198,28 +271,43 @@ public class ScheduledConfig {
         while (!testFire(dt)){
             dt = dt.plusMinutes(1);
         }
-        return dt;
+        return Optional.ofNullable(dt);
     }
 
+//    protected String nextKey(){
+//        LocalDateTime localDateTime = nextFireTime();
+//        return localDateTime.format(DateTimeFormatter.ofPattern("MM-dd-HH-mm-ss"));
+//    }
 
-    /**
-     * 计算下次 允许 触发的 分钟 数值
-     * @param testMinute
-     * @return
-     */
-    private int nextFireMinute(int testMinute ){
-        return  -1;
-    }
+
+
+//    /**
+//     * 计算下次 允许 触发的 分钟 数值
+//     * @return
+//     */
+//    private int nextFireMinute(int testMinute ){
+//        return computeNextFireLocalDateTime().getMinute();
+//    }
 
 
     public long nextFireTimeMills(){
-        return DateTimeUtil.toEpochMilli(nextFireTime());
+        if(nextFireTimeMills > 0 && nextFireTimeMills > TimeMillisClock.currentTimeMillis()){
+            return nextFireTimeMills;
+        }
+        final Optional<LocalDateTime> optional = computeNextFireLocalDateTime();
+        if (optional.isPresent()) {
+            this.nextFireTimeMills = DateTimeUtil.toEpochMilli(optional.get());
+            return this.nextFireTimeMills;
+        }
+        return -1;
+
     }
 
 
     protected void fire(){
         this.fireCount ++ ;
         this.lastFireTime = TimeMillisClock.currentTimeMillis();
+        this.nextFireTimeMills();
     }
 
     public boolean testFire(LocalDateTime localDateTime){
@@ -287,17 +375,10 @@ public class ScheduledConfig {
 
     }
 
-
-    static long leftMove(long source){
-        return source<<1;
-    }
-
-
     public static void main(String[] args) {
         ScheduledConfig config =
                 ScheduledConfig.everyDay(3, 12).randomSecondIfZero();
         System.out.println(config.disPlayTable());
-
     }
 
 }

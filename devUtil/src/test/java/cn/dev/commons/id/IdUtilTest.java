@@ -1,6 +1,6 @@
 package cn.dev.commons.id;
 
-import cn.dev.commons.datetime.TimeMillisClock;
+import cn.dev.clock.TimeMillisClock;
 import org.junit.jupiter.api.Test;
 
 class IdUtilTest {

@@ -2,7 +2,7 @@ package cn.dev.commons.id;
 
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.datetime.DateTimeUtil;
-import cn.dev.commons.datetime.TimeMillisClock;
+import cn.dev.clock.TimeMillisClock;
 
 import java.time.LocalDateTime;
 import java.util.Date;
