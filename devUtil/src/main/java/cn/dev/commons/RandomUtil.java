@@ -52,19 +52,19 @@ public class RandomUtil {
 
 
     /** 用随机数注满 数组   ---by JasonMao @ 2023/3/16 14:56 */
-    private static CompletableFuture reRandomArray(){
-        return CompletableFuture.runAsync(() -> {
-            for (int i = 0; i < int_array.length; i++) {
-                int_array[i] = getRandom().nextInt(maxValueLimit);
-            }
-        });
+    private static void reRandomArray(){
+        for (int i = 0; i < int_array.length; i++) {
+            int_array[i] = getRandom().nextInt(maxValueLimit);
+        }
     }
 
     private static synchronized int nextIndex(){
         int target = int_index ;
         int_index ++;
         if(int_index +1 > cacheSize){
-            reRandomArray();
+            CompletableFuture.runAsync(()->{
+                reRandomArray();
+            });
             int_index = 0 ;
         }
         return target;
@@ -95,5 +95,5 @@ public class RandomUtil {
         }
         return sb.toString();
     }
-    
+
 }

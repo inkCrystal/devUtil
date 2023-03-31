@@ -175,7 +175,9 @@ public class ScheduledConfig {
      */
     public ScheduledConfig randomSecondIfZero(){
         if(this.secondConfig == 0){
-            this.secondConfig = RandomUtil.nextInt()%59;
+            int newS = RandomUtil.nextInt()%60;
+            System.out.println(secondConfig + ">" + newS + ">" + newS%60);
+            this.secondConfig = newS;
         }
         return this;
     }
@@ -199,6 +201,17 @@ public class ScheduledConfig {
         return dt;
     }
 
+
+    /**
+     * 计算下次 允许 触发的 分钟 数值
+     * @param testMinute
+     * @return
+     */
+    private int nextFireMinute(int testMinute ){
+        return  -1;
+    }
+
+
     public long nextFireTimeMills(){
         return DateTimeUtil.toEpochMilli(nextFireTime());
     }
@@ -210,9 +223,9 @@ public class ScheduledConfig {
     }
 
     public boolean testFire(LocalDateTime localDateTime){
-        return testFire(localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond());
+        return testFire(localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond());
     }
-    public boolean testFire(int year, int month, int dayOfMonth, int hour, int minute, int second){
+    public boolean testFire( int month, int dayOfMonth, int hour, int minute, int second){
         if(second == this.secondConfig){
             int offSet = 0 ;
             if (isCheckPositionIsTrue(this.minuteConfig , minute, offSet)) {
@@ -236,21 +249,6 @@ public class ScheduledConfig {
         return  LocalDateTime.of(2023, 12, 33, 1, 1, 1).toString();
     }
 
-
-    private boolean containsZeroOrTarget(int target , int maxValue, int[] array){
-        if(target > maxValue){
-            target = maxValue;
-        }
-        if (array == null) {
-            return true;
-        }
-        for (int i : array) {
-            if( i == target){
-                return true;
-            }
-        }
-        return false;
-    }
 
     public long getDayOfMonthConfig(){
         boolean[] booleans = BinaryTool.toBoolArray(this.mothAndDayConfig);
@@ -294,5 +292,12 @@ public class ScheduledConfig {
         return source<<1;
     }
 
+
+    public static void main(String[] args) {
+        ScheduledConfig config =
+                ScheduledConfig.everyDay(3, 12).randomSecondIfZero();
+        System.out.println(config.disPlayTable());
+
+    }
 
 }
