@@ -1,6 +1,8 @@
 package cn.dev.clock.schedule;
 
+import cn.dev.clock.DateTimeEntry;
 import cn.dev.clock.TimeMillisClock;
+import cn.dev.commons.ArrayUtil;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.datetime.DateTimeUtil;
@@ -9,6 +11,7 @@ import cn.dev.exception.ScheduleConfigException;
 import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -46,7 +49,7 @@ public class ScheduledConfig {
     /**
      * 下次触发的时间戳 （变化的 ）
      */
-    private long nextFireTimeMills ;
+    private DateTimeEntry nextFireTime;
 
     /**
      * 最后触发时间
@@ -248,66 +251,67 @@ public class ScheduledConfig {
         return this;
     }
 
-
-    /**
-     * 下次触发 的 时间 ，不对外开放
-     * @return
-     */
-    private Optional<LocalDateTime> computeNextFireLocalDateTime(){
-        if (!this.isAvailable()) {
-            return Optional.ofNullable(null);
-        }
-        LocalDateTime dt =DateTimeUtil.now();
-        int second = dt.getSecond();
-        int fireSecond = this.secondConfig;
-        if(fireSecond > second){
-            dt = dt.plusSeconds(fireSecond -second);
-        }else if(second > fireSecond){
-            dt = dt.minusSeconds( second - fireSecond);
-        }
-        if(dt.isAfter(LocalDateTime.now())){
-            dt = dt.plusMinutes(1);
-        }
-        while (!testFire(dt)){
-            dt = dt.plusMinutes(1);
-        }
-        return Optional.ofNullable(dt);
-    }
-
-//    protected String nextKey(){
-//        LocalDateTime localDateTime = nextFireTime();
-//        return localDateTime.format(DateTimeFormatter.ofPattern("MM-dd-HH-mm-ss"));
-//    }
-
-
-
+//
 //    /**
-//     * 计算下次 允许 触发的 分钟 数值
+//     * 下次触发 的 时间 ，不对外开放
 //     * @return
 //     */
-//    private int nextFireMinute(int testMinute ){
-//        return computeNextFireLocalDateTime().getMinute();
+//    private Optional<LocalDateTime> computeNextFireLocalDateTime(){
+//        if (!this.isAvailable()) {
+//            return Optional.ofNullable(null);
+//        }
+//
+//        LocalDateTime dt =DateTimeUtil.now();
+//        int minute = dt.getMinute();
+//        int hour = dt.getHour();
+//        int dayOfMonth = dt.getDayOfMonth();
+//        int year = dt.getYear();
+//        int second = dt.getSecond();
+//
+//
+//        int fireSecond = this.secondConfig;
+//        if(fireSecond > second){
+//            second = fireSecond;
+//        }else{
+//
+//        }
+//
+//
+//
+//        if(fireSecond > currentSecond){
+//            dt = dt.plusSeconds(fireSecond -currentSecond);
+//        }else if(currentSecond > fireSecond){
+//            dt = dt.minusSeconds( currentSecond - fireSecond);
+//        }
+//        if(dt.isAfter(LocalDateTime.now())){
+//            dt = dt.plusMinutes(1);
+//        }
+//        while (!testFire(dt)){
+//            dt = dt.plusMinutes(1);
+//        }
+//        return Optional.ofNullable(dt);
 //    }
 
-
-    public long nextFireTimeMills(){
-        if(nextFireTimeMills > 0 && nextFireTimeMills > TimeMillisClock.currentTimeMillis()){
-            return nextFireTimeMills;
-        }
-        final Optional<LocalDateTime> optional = computeNextFireLocalDateTime();
-        if (optional.isPresent()) {
-            this.nextFireTimeMills = DateTimeUtil.toEpochMilli(optional.get());
-            return this.nextFireTimeMills;
-        }
-        return -1;
-
-    }
+//    public long nextFireTimeMills(){
+//        if(nextFireTimeMills > 0 && nextFireTimeMills > TimeMillisClock.currentTimeMillis()){
+//            return nextFireTimeMills;
+//        }
+//        final Optional<LocalDateTime> optional = computeNextFireLocalDateTime();
+//        if (optional.isPresent()) {
+//            this.nextFireTimeMills = DateTimeUtil.toEpochMilli(optional.get());
+//            return this.nextFireTimeMills;
+//        }else {
+//            this.ableState = false;
+//        }
+//        return -1;
+//
+//    }
 
 
     protected void fire(){
         this.fireCount ++ ;
         this.lastFireTime = TimeMillisClock.currentTimeMillis();
-        this.nextFireTimeMills();
+//        this.nextFireTimeMills();
     }
 
     public boolean testFire(LocalDateTime localDateTime){
@@ -374,6 +378,14 @@ public class ScheduledConfig {
         return sb.toString();
 
     }
+
+//
+//    private int[] getConfigMonthArray(){
+//        final long monthConfig = getMonthConfig();
+//        final boolean[] booleans = BinaryTool.toBoolArray(monthConfig);
+//
+//    }
+
 
     public static void main(String[] args) {
         ScheduledConfig config =
