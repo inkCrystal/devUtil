@@ -1,6 +1,6 @@
 package cn.dev.parallel.task.runner;
 
-import cn.dev.clock.TimeMillisClock;
+import cn.dev.clock.CommonTimeClock;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
 import cn.dev.parallel.task.api.IFunction;
@@ -57,11 +57,11 @@ public class FunctionResult<T> extends TaskFuture {
 
 
     public T get() {
-        long begin = TimeMillisClock.currentTimeMillis();
-        long end = TimeMillisClock.currentTimeMillis();
+        long begin = CommonTimeClock.currentTimeMillis();
+        long end = CommonTimeClock.currentTimeMillis();
         while (true){
             if(timeoutAble){
-                long now = TimeMillisClock.currentTimeMillis();
+                long now = CommonTimeClock.currentTimeMillis();
                 if(now>expireTime){
                     throw new TaskTimeoutException();
                 }

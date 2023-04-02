@@ -1,18 +1,15 @@
 package cn.dev.clock.schedule;
 
 import cn.dev.clock.DateTimeEntry;
-import cn.dev.clock.TimeMillisClock;
-import cn.dev.commons.ArrayUtil;
+import cn.dev.clock.CommonTimeClock;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
-import cn.dev.commons.datetime.DateTimeUtil;
 import cn.dev.commons.verification.VerificationTool;
+import cn.dev.core.model.Identity;
 import cn.dev.exception.ScheduleConfigException;
 import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -20,6 +17,7 @@ import java.util.function.Predicate;
  * 且可能在项目应用会造成过度的系统负载
  */
 public class ScheduledConfig {
+    private Identity identity =null;
 
     /**
      * 月份和 日 的配置 。
@@ -106,7 +104,7 @@ public class ScheduledConfig {
      * @return
      */
     public boolean isAvailable(){
-        if(ableState &&  TimeMillisClock.currentMillis() < this.expireTime){
+        if(ableState &&  CommonTimeClock.currentMillis() < this.expireTime){
             if(maxFireCount > 0 ){
                 return fireCount < maxFireCount;
             }
@@ -118,7 +116,7 @@ public class ScheduledConfig {
 
 
     public void setExpireTime(long expireTime) {
-        if(expireTime > TimeMillisClock.currentTimeMillis()) {
+        if(expireTime > CommonTimeClock.currentTimeMillis()) {
             this.expireTime = expireTime;
         }
     }
@@ -310,7 +308,7 @@ public class ScheduledConfig {
 
     protected void fire(){
         this.fireCount ++ ;
-        this.lastFireTime = TimeMillisClock.currentTimeMillis();
+        this.lastFireTime = CommonTimeClock.currentTimeMillis();
 //        this.nextFireTimeMills();
     }
 

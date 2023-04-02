@@ -1,6 +1,6 @@
 package cn.dev.parallel.task.runner;
 
-import cn.dev.clock.TimeMillisClock;
+import cn.dev.clock.CommonTimeClock;
 import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.io.Serial;
@@ -54,7 +54,7 @@ public class TaskFuture  implements Serializable {
             if (this.stateRecords == null) {
                 this.stateRecords = new ArrayList<>();
             }
-            long time = TimeMillisClock.currentTimeMillis();
+            long time = CommonTimeClock.currentTimeMillis();
             this.state = state;
             stateRecords.add(new FunctionStateRecord(time, state));
             return 0;

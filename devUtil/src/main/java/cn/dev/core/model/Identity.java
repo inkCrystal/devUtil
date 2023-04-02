@@ -1,7 +1,7 @@
 package cn.dev.core.model;
 
 import cn.dev.commons.id.IdHelper;
-import cn.dev.clock.TimeMillisClock;
+import cn.dev.clock.CommonTimeClock;
 import cn.dev.exception.IdentityJoinException;
 
 import java.io.Serial;
@@ -45,7 +45,7 @@ public class Identity implements Serializable {
     public Identity() {
         this.id = IdHelper.nextBase64Id();
         this.group = null;
-        this.initTime = TimeMillisClock.currentTimeMillis();
+        this.initTime = CommonTimeClock.currentTimeMillis();
     }
 
     public long getGroupTime() {
@@ -90,7 +90,7 @@ public class Identity implements Serializable {
      * @throws IdentityJoinException
      */
     public static final String joinGroup(Identity... identities) throws IdentityJoinException {
-        // todo;
+
 
         return null;
     }
@@ -104,5 +104,9 @@ public class Identity implements Serializable {
             return this.id.equals(identity.getId());
         }
         return false;
+    }
+
+    public long getInitTime() {
+        return initTime;
     }
 }

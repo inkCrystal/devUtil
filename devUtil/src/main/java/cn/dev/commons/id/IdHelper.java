@@ -2,7 +2,7 @@ package cn.dev.commons.id;
 
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.datetime.DateTimeUtil;
-import cn.dev.clock.TimeMillisClock;
+import cn.dev.clock.CommonTimeClock;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -52,7 +52,7 @@ public class IdHelper {
 
     private static long getMillis() {
 
-        return TimeMillisClock.currentTimeMillis();
+        return CommonTimeClock.currentTimeMillis();
     }
 
 

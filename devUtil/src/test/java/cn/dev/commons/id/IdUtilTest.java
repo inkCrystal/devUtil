@@ -1,6 +1,6 @@
 package cn.dev.commons.id;
 
-import cn.dev.clock.TimeMillisClock;
+import cn.dev.clock.CommonTimeClock;
 import org.junit.jupiter.api.Test;
 
 class IdUtilTest {
@@ -8,7 +8,7 @@ class IdUtilTest {
     @Test
     public void test(){
         IdHelper idHelper = IdHelper.getInstance();
-        Long now = TimeMillisClock.currentTimeMillis();
+        Long now = CommonTimeClock.currentTimeMillis();
         long idFirst = IdHelper.getInstance().getFirstIdOfTime(now);
         long id = IdHelper.getInstance().getNextId();
 

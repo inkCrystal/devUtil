@@ -46,14 +46,6 @@ public class ScheduleManger {
     }
 
 
-    public static void main(String[] args) {
-        Map<String,List<String>> map =new HashMap<>();
-
-        map.put("q",new ArrayList<>());
-        map.get("q").add("fuck");
-        System.out.println(map);
-    }
-
 
 
 }

@@ -4,6 +4,7 @@ import cn.dev.clock.listener.ITimeClockListener;
 import cn.dev.commons.datetime.DateTimeUtil;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @date : 2023/3/17 14:49
  * @description :
  */
-public class TimeMillisClock {
+public class CommonTimeClock {
 
     private final int period;
 
@@ -42,18 +43,18 @@ public class TimeMillisClock {
     }
 
     private static class InstanceHolder {
-        private static final TimeMillisClock INSTANCE = new TimeMillisClock(1);
+        private static final CommonTimeClock INSTANCE = new CommonTimeClock(1);
     }
 
-    private static final TimeMillisClock getInstance(){
+    private static final CommonTimeClock getInstance(){
         return InstanceHolder.INSTANCE;
     }
-    private TimeMillisClock(int period) {
+    private CommonTimeClock(int period) {
         this.period = period;
         this.now = new AtomicLong(System.currentTimeMillis());
         this.start();
     }
-    private VTimeClock clock ;
+    private static VTimeClock clock ;
 
 
     private static long lastClockFire = 0L;
@@ -108,9 +109,44 @@ public class TimeMillisClock {
     }
 
 
-    public VTimeClock getClock() {
-        return clock;
+    public static VTimeClock getClock() {
+        return getInstance().getVClock();
     }
+
+
+    public static int getHour(){
+        return getClock().getHour();
+    }
+
+    public static int getMinute(){
+        return getClock().getMinute();
+    }
+
+    public static int getSecond(){
+        return getClock().getSecond();
+    }
+
+    public static int getYear(){
+        return getClock().getYear();
+    }
+
+    public static int getMonth(){
+        return getClock().getMonth();
+    }
+
+    public static int getDayOfMonth(){
+        return getClock().getDayOfMonth();
+    }
+
+    public static LocalTime getLocalTime(){
+        return LocalTime.of(getHour(), getMinute(), getSecond());
+    }
+
+    public static LocalDateTime getLocalDateTime(){
+        return LocalDateTime.of(getYear(), getMonth(), getDayOfMonth(), getHour(), getMinute(), getSecond());
+    }
+
+
 
     class VTimeClock {
         private int year, month , dayOfMonth , hour,minute ,second =-1;
