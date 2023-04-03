@@ -8,18 +8,38 @@ import cn.dev.commons.verification.VerificationTool;
  */
 public class BinaryTool {
 
+    // 左移 1位
     private static long leftMove(long target){
         return target<<1;
     }
 
+    // 右移 1位
     private static long rightMove(long target){
         return target>>1;
     }
+
+    // 左移 n位
+    public static long leftMove(long target,int moveCount){
+        for (int i = 0; i < moveCount; i++) {
+            target = leftMove(target);
+        }
+        return target;
+    }
+
+
+    // 右移 n位
+    public static long rightMove(long target,int moveCount){
+        for (int i = 0; i < moveCount; i++) {
+            target = rightMove(target);
+        }
+        return target;
+    }
+
+
     public static long ofBinaryString(String str){
         VerificationTool.isMatch(str,s -> {
             for (char c : s.toCharArray()) {
                 if(c !='0' &&  c!='1'){
-                    System.out.println("not match --" + c );
                     return false;
                 }
             }
@@ -121,15 +141,15 @@ public class BinaryTool {
     }
 
 
-    public static void main(String[] args) {
-        long x = 1l;
-        for (int i = 0; i <12+31+1 ; i++) {
-            x = leftMove(x );
-            System.out.println(toHorizontalString(x));
-        }
-
-        System.out.println(x );
-        System.out.println(toHorizontalString(x));
-        System.out.println(toHorizontalString(ofBinaryString("001100")));
-    }
+//    public static void main(String[] args) {
+//        long x = 1l;
+//        for (int i = 0; i <12+31+1 ; i++) {
+//            x = leftMove(x );
+//            System.out.println(toHorizontalString(x));
+//        }
+//
+//        System.out.println(x );
+//        System.out.println(toHorizontalString(x));
+//        System.out.println(toHorizontalString(ofBinaryString("001100")));
+//    }
 }

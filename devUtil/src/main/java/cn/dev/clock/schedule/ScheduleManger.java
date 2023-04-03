@@ -41,7 +41,7 @@ public class ScheduleManger {
 
 
     public void register(ScheduledConfig config){
-        if(config.isAvailable()){
+        if(config.isConfigAvailable()){
         }
     }
 

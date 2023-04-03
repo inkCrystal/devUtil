@@ -5,11 +5,11 @@ import cn.dev.clock.CommonTimeClock;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.verification.VerificationTool;
-import cn.dev.core.model.Identity;
 import cn.dev.exception.ScheduleConfigException;
 import cn.dev.parallel.task.api.ITaskFunction;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 /**
@@ -17,8 +17,6 @@ import java.util.function.Predicate;
  * 且可能在项目应用会造成过度的系统负载
  */
 public class ScheduledConfig {
-    private Identity identity =null;
-
     /**
      * 月份和 日 的配置 。
      * 0位空缺
@@ -26,8 +24,11 @@ public class ScheduledConfig {
      * 13-34位表示 日 配置，offset =12
      */
     private long mothAndDayConfig =  0;
+    //触发小时 的配置
     private long hourConfig;
+    //触发分钟 的配置
     private long minuteConfig;
+    //触发秒 的配置
     private int secondConfig;
 
     /**
@@ -54,12 +55,11 @@ public class ScheduledConfig {
      */
     private long lastFireTime = 0;
 
-
     /**
      * 有效状态
      */
     private boolean ableState = false;
-
+    //任务函数
     private ITaskFunction scheduledTask = null;
 
 
@@ -69,7 +69,7 @@ public class ScheduledConfig {
      * @return
      * @throws RuntimeException
      */
-    protected boolean enable(ITaskFunction taskFunction) throws ScheduleConfigException{
+    protected boolean enableConfig(ITaskFunction taskFunction) throws ScheduleConfigException{
         this.safeCheck();
         VerificationTool.isNotNull(taskFunction);
         this.scheduledTask = taskFunction;
@@ -89,21 +89,20 @@ public class ScheduledConfig {
             throw new ScheduleConfigException(typeConfigName + "缺失可以匹配的明确时间点");
         }
     }
+    //检查 配置参数的合法性， 会直接抛出 异常 ScheduleConfigException
     private void safeCheck() throws ScheduleConfigException {
         this.configSafeCheck("配置的可执行月：",getMonthConfig(),1);
         this.configSafeCheck("配置的可执行日：",getDayOfMonthConfig(),1);
         this.configSafeCheck("配置的可执行时：",this.hourConfig,0);
         this.configSafeCheck("配置的可执行分：",this.hourConfig,0);
-
     }
-
 
 
     /**
      * 是否有效
      * @return
      */
-    public boolean isAvailable(){
+    public boolean isConfigAvailable(){
         if(ableState &&  CommonTimeClock.currentMillis() < this.expireTime){
             if(maxFireCount > 0 ){
                 return fireCount < maxFireCount;
@@ -114,7 +113,10 @@ public class ScheduledConfig {
     }
 
 
-
+    /**
+     * 设置配置 失效时间
+     * @param expireTime
+     */
     public void setExpireTime(long expireTime) {
         if(expireTime > CommonTimeClock.currentTimeMillis()) {
             this.expireTime = expireTime;
@@ -131,108 +133,111 @@ public class ScheduledConfig {
         }
     }
 
-
-
     private long set(long source , int offSet , int minValue , int maxValue , Predicate<Integer> predicate){
         for (int i = minValue; i <= maxValue ; i++) {
             if (predicate.test(i)) {
-                long t =1;
-                for (int j = 0; j <i+offSet; j++) {
-                    t = t<<1;
-                }
-                source = source|t;
+                var t= BinaryTool.leftMove(1,offSet+i);
+                source = source| t;
             }
         }
         return source;
     }
-    public ScheduledConfig setDayConfigPredicate(Predicate<Integer> predicate){
-        this.mothAndDayConfig = set(this.mothAndDayConfig,12,1,31,predicate);
-        //System.out.println(BinaryTool.toHorizontalString(this.mothAndDayConfig));
 
+    //设置月份配置
+    public ScheduledConfig configSetDayConfigPredicate(Predicate<Integer> predicate){
+        this.mothAndDayConfig = set(this.mothAndDayConfig,12,1,31,predicate);
         return this;
     }
 
-    public ScheduledConfig setMonthConfigPredicate(Predicate<Integer> predicate){
+    public ScheduledConfig configSetMonthConfigPredicate(Predicate<Integer> predicate){
         this.mothAndDayConfig = set(this.mothAndDayConfig,0,1,12,predicate);
         return this;
     }
 
-    public ScheduledConfig setHourConfigPredicate(Predicate<Integer> predicate){
+    public ScheduledConfig configSetHourConfigPredicate(Predicate<Integer> predicate){
         this.hourConfig = set(this.hourConfig,0,0,23,predicate);
         return this;
     }
 
-    public ScheduledConfig setMinuteConfigPredicate(Predicate<Integer> predicate){
+    public ScheduledConfig configSetMinuteConfigPredicate(Predicate<Integer> predicate){
         this.minuteConfig = set(this.minuteConfig,0,0,59,predicate);
         return this;
     }
 
-    public ScheduledConfig setSecondConfigPredicate(int secondConfig){
-//        this.secondConfig = set(this.secondConfig,0,0,59,predicate);
+    public ScheduledConfig configSetSecondConfigPredicate(int secondConfig){
         this.secondConfig = secondConfig;
         return this;
     }
 
-
-//    public ScheduledConfig setDayConfig(int... days){
-//
-//    }
-
-    public static ScheduledConfig everyYear(int month , int dayOfMonth){
-        return everyYear(month,dayOfMonth,0);
+    public static ScheduledConfig configEveryYear(int month , int dayOfMonth){
+        return configEveryYear(month,dayOfMonth,0);
     }
-    public static ScheduledConfig everyYear(int month , int dayOfMonth, int hour){
-        return everyYear(month,dayOfMonth,hour,0);
+    public static ScheduledConfig configEveryYear(int month , int dayOfMonth, int hour){
+        return configEveryYear(month,dayOfMonth,hour,0);
     }
-    public static ScheduledConfig everyYear(int month , int dayOfMonth, int hour, int minute ){
-        return everyYear(month,dayOfMonth,hour,minute,0);
+    public static ScheduledConfig configEveryYear(int month , int dayOfMonth, int hour, int minute ){
+        return configEveryYear(month,dayOfMonth,hour,minute,0);
     }
-    public static ScheduledConfig everyYear(int month , int dayOfMonth, int hour , int minute, int second){
+    public static ScheduledConfig configEveryYear(int month , int dayOfMonth, int hour , int minute, int second){
         System.out.println(month  + " " + dayOfMonth );
         return new ScheduledConfig()
-                .setMonthConfigPredicate(m->m==month||month<0)
-                .setDayConfigPredicate(d->d==dayOfMonth||dayOfMonth<0)
-                .setHourConfigPredicate(h->h==hour||hour<0)
-                .setMinuteConfigPredicate(m-> m == minute || minute < 0)
-                .setSecondConfigPredicate(second);
+                .configSetMonthConfigPredicate(m->m==month||month<0)
+                .configSetDayConfigPredicate(d->d==dayOfMonth||dayOfMonth<0)
+                .configSetHourConfigPredicate(h->h==hour||hour<0)
+                .configSetMinuteConfigPredicate(m-> m == minute || minute < 0)
+                .configSetSecondConfigPredicate(second);
     }
-    public static ScheduledConfig everyMonth(int dayOfMonth, int hour, int minute , int second){
-        return everyYear(-1,dayOfMonth,hour,minute,second);
-    }
-
-    public static ScheduledConfig everyMonth(int dayOfMonth, int hour , int minute ){
-        return everyMonth(dayOfMonth,hour,minute,0);
+    public static ScheduledConfig configEveryMonth(int dayOfMonth, int hour, int minute , int second){
+        return configEveryYear(-1,dayOfMonth,hour,minute,second);
     }
 
-    public static ScheduledConfig everyMonth(int dayOfMonth, int hour){
-        return everyMonth(dayOfMonth,hour,0);
-    }
-    public static ScheduledConfig everyMonth(int dayOfMonth){
-        return everyMonth(dayOfMonth,0);
+    public static ScheduledConfig configEveryMonth(int dayOfMonth, int hour , int minute ){
+        return configEveryMonth(dayOfMonth,hour,minute,0);
     }
 
-    public static ScheduledConfig everyDay(int hour, int minute , int second){
-        return everyMonth(-1,hour,minute,second);
+    public static ScheduledConfig configEveryMonth(int dayOfMonth, int hour){
+        return configEveryMonth(dayOfMonth,hour,0);
+    }
+    public static ScheduledConfig configEveryMonth(int dayOfMonth){
+        return configEveryMonth(dayOfMonth,0);
     }
 
-    public static ScheduledConfig everyDay(int hour, int minute){
-        return everyDay(hour,minute,0);
-    }
-    public static final ScheduledConfig everyDay(int hour){
-        return everyDay(hour,0);
+    public static ScheduledConfig configEveryDay(int hour, int minute , int second){
+        return configEveryMonth(-1,hour,minute,second);
     }
 
-    public static final ScheduledConfig everyHour(int minute , int second){
-        return everyDay(-1,minute,second);
+    public static ScheduledConfig configEveryDay(int hour, int minute){
+        return configEveryDay(hour,minute,0);
+    }
+    public static final ScheduledConfig configEveryDay(int hour){
+        return configEveryDay(hour,0);
+    }
+
+    public static final ScheduledConfig configEveryHour(int minute , int second){
+        return configEveryDay(-1,minute,second);
     }
 
 
-    public static ScheduledConfig everyHour(int minute){
-        return everyHour(minute,0);
+    public static ScheduledConfig configEveryHour(int minute){
+        return configEveryHour(minute,0);
     }
 
-    public static ScheduledConfig everyMinute(int second){
-        return everyHour(-1,second);
+    public static ScheduledConfig configEveryMinute(int second){
+        return configEveryHour(-1,second);
+    }
+
+
+    // 设置 多少时间后执行 1次
+    public ScheduledConfig configRunDelay(int time , TimeUnit unit){
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime fireTime = now.plusSeconds(unit.toSeconds(time));
+        this.configSetMonthConfigPredicate(m->m==fireTime.getMonthValue());
+        this.configSetDayConfigPredicate(d->d==fireTime.getDayOfMonth());
+        this.configSetHourConfigPredicate(h->h==fireTime.getHour());
+        this.configSetMinuteConfigPredicate(m->m==fireTime.getMinute());
+        this.configSetSecondConfigPredicate(fireTime.getSecond());
+        this.setMaxRuntimes(1);
+        return this;
     }
 
     /**
@@ -248,62 +253,6 @@ public class ScheduledConfig {
         }
         return this;
     }
-
-//
-//    /**
-//     * 下次触发 的 时间 ，不对外开放
-//     * @return
-//     */
-//    private Optional<LocalDateTime> computeNextFireLocalDateTime(){
-//        if (!this.isAvailable()) {
-//            return Optional.ofNullable(null);
-//        }
-//
-//        LocalDateTime dt =DateTimeUtil.now();
-//        int minute = dt.getMinute();
-//        int hour = dt.getHour();
-//        int dayOfMonth = dt.getDayOfMonth();
-//        int year = dt.getYear();
-//        int second = dt.getSecond();
-//
-//
-//        int fireSecond = this.secondConfig;
-//        if(fireSecond > second){
-//            second = fireSecond;
-//        }else{
-//
-//        }
-//
-//
-//
-//        if(fireSecond > currentSecond){
-//            dt = dt.plusSeconds(fireSecond -currentSecond);
-//        }else if(currentSecond > fireSecond){
-//            dt = dt.minusSeconds( currentSecond - fireSecond);
-//        }
-//        if(dt.isAfter(LocalDateTime.now())){
-//            dt = dt.plusMinutes(1);
-//        }
-//        while (!testFire(dt)){
-//            dt = dt.plusMinutes(1);
-//        }
-//        return Optional.ofNullable(dt);
-//    }
-
-//    public long nextFireTimeMills(){
-//        if(nextFireTimeMills > 0 && nextFireTimeMills > TimeMillisClock.currentTimeMillis()){
-//            return nextFireTimeMills;
-//        }
-//        final Optional<LocalDateTime> optional = computeNextFireLocalDateTime();
-//        if (optional.isPresent()) {
-//            this.nextFireTimeMills = DateTimeUtil.toEpochMilli(optional.get());
-//            return this.nextFireTimeMills;
-//        }else {
-//            this.ableState = false;
-//        }
-//        return -1;
-//
-//    }
 
 
     protected void fire(){
@@ -335,11 +284,12 @@ public class ScheduledConfig {
         return BinaryTool.checkPositionIsTrue(source, target + offSet);
     }
 
-    public static String dateString(){
-        return  LocalDateTime.of(2023, 12, 33, 1, 1, 1).toString();
-    }
 
 
+    /**
+     * 获取触发日的配置
+     * @return
+     */
     public long getDayOfMonthConfig(){
         boolean[] booleans = BinaryTool.toBoolArray(this.mothAndDayConfig);
         int offSet =12 ;
@@ -349,6 +299,11 @@ public class ScheduledConfig {
         }
         return BinaryTool.valueOfBooleanArray(dConfig);
     }
+
+    /**
+     * 获取触发月份的配置
+     * @return
+     */
     public long getMonthConfig(){
         boolean[] booleans = BinaryTool.toBoolArray(this.mothAndDayConfig);
         boolean[] mConfig = new boolean[64];
@@ -358,6 +313,17 @@ public class ScheduledConfig {
         return BinaryTool.valueOfBooleanArray(mConfig);
     }
 
+    public long getHourConfig() {
+        return hourConfig;
+    }
+
+    public long getMinuteConfig() {
+        return minuteConfig;
+    }
+
+    public int getSecondConfig() {
+        return secondConfig;
+    }
 
     public String disPlayTable(){
         StringBuilder sb =new StringBuilder("配置图表");
@@ -377,6 +343,9 @@ public class ScheduledConfig {
 
     }
 
+
+
+
 //
 //    private int[] getConfigMonthArray(){
 //        final long monthConfig = getMonthConfig();
@@ -387,8 +356,9 @@ public class ScheduledConfig {
 
     public static void main(String[] args) {
         ScheduledConfig config =
-                ScheduledConfig.everyDay(3, 12).randomSecondIfZero();
+                ScheduledConfig.configEveryDay(3, 12).randomSecondIfZero();
         System.out.println(config.disPlayTable());
     }
 
 }
+

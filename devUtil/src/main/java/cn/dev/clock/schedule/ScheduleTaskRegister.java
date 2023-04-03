@@ -40,7 +40,7 @@ public class ScheduleTaskRegister {
 
 
     public void register(ScheduledConfig config){
-        if(config.isAvailable()){
+        if(config.isConfigAvailable()){
             Queue<ScheduledConfig> taskQueue = getTaskQueue();
             taskQueue.add(config);
         }
