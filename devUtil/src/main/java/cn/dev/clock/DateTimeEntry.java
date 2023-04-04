@@ -23,6 +23,10 @@ public class DateTimeEntry implements Serializable {
     private int minute =0;
     private int second =0;
 
+    public DateTimeEntry(LocalDateTime localDateTime) {
+        this(localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond());
+    }
+
     public DateTimeEntry(int year, int month, int dayOfMonth, int hour, int minute, int second) {
         setYear(year);
         setMonth(month);
@@ -76,7 +80,7 @@ public class DateTimeEntry implements Serializable {
      */
     public void setDayOfMonth(int dayOfMonth) {
         final int maxValueForDayOfMonth = DateTimeUtil.maxValueForDayOfMonth(this.year, this.month);
-        VerificationTool.isMatch(dayOfMonth,t->t>maxValueForDayOfMonth,"日设置错误");
+        VerificationTool.isMatch(dayOfMonth,t->t<maxValueForDayOfMonth,"日设置错误");
         this.dayOfMonth = dayOfMonth;
     }
 

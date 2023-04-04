@@ -655,4 +655,26 @@ public class ArrayUtil {
     }
 
 
+    /**
+     * 获取下一个值，不包含 与 currentValue 相等的值
+     * @param array
+     * @param currentValue
+     * @return
+     * @param <T>
+     */
+    public static <T> T nextValue(T[] array,T currentValue){
+        boolean b = false;
+        for (T t : array) {
+            if(b && !t.equals(currentValue)){
+                return t;
+            }
+            if (t.equals(currentValue)) {
+                b =true;
+            }
+        }
+        return null;
+
+    }
+
+
 }

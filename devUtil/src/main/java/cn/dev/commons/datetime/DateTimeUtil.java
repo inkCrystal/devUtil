@@ -68,8 +68,6 @@ public class DateTimeUtil {
 
 
 
-
-
     public static final LocalDateTime valueOfString(String source){
 
         return LocalDateTime.parse(source);
@@ -174,14 +172,6 @@ public class DateTimeUtil {
     }
 
 
-//
-//    public static final String toLocalDateTimeString(LocalDateTime localDateTime){
-//        return localDateTime.toString();
-//    }
-
-
-
-
     public static final String toFmtString(LocalDateTime localDateTime , String datetimeFmt){
         return FormatFactory.getFmt(datetimeFmt).format(localDateTime);
     }
@@ -196,6 +186,15 @@ public class DateTimeUtil {
     public static int maxValueForDayOfMonth(int year, int month){
         LocalDateTime date = LocalDateTime.of(year, month, 1, 0, 0);
         return endOfMonth(date).getDayOfMonth();
+    }
+
+    /**
+     * 计算指定月份的最大天数
+     * @param localDateTime
+     * @return
+     */
+    public static int maxValueForDayOfMonth(LocalDateTime localDateTime) {
+        return maxValueForDayOfMonth(localDateTime.getYear(), localDateTime.getMonthValue());
     }
 
     /*>>>>>>>>>>>>>>>>>>>>>>-一日当中的最大秒数-<<<<<<<<<<<<<<<<<<<<<<<*/

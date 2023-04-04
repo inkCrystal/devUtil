@@ -1,6 +1,7 @@
 package cn.dev.clock.schedule;
 
 import cn.dev.clock.CommonTimeClock;
+import cn.dev.clock.schedule.config.ScheduledConfig;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;

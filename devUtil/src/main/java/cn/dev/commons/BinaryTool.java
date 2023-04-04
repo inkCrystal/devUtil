@@ -60,9 +60,9 @@ public class BinaryTool {
         return  checkPositionIsTrue(v,posIndex);
     }
 
-    public static boolean checkPositionIsZero(long v, int posIndex) {
-        return checkPositionIsTrue(v,posIndex) ==false;
-    }
+//    public static boolean checkPositionIsZero(long v, int posIndex) {
+//        return checkPositionIsTrue(v,posIndex) ==false;
+//    }
 
     public static final String toHorizontalString(long number){
         boolean[] booleanArray = toBoolArray(number);

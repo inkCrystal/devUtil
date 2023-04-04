@@ -1,5 +1,7 @@
 package cn.dev.clock.schedule;
 
+import cn.dev.clock.schedule.config.ScheduledConfig;
+
 import java.util.*;
 
 public class ScheduleManger {
