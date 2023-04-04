@@ -1,7 +1,7 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
 
 import cn.dev.clock.CommonTimeClock;
-import cn.dev.parallel.task.api.ITaskFunction;
+import cn.dev.core.parallel.task.api.ITaskFunction;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TaskFuture  implements Serializable {
+public sealed class TaskFuture implements Serializable
+        permits FunctionResult{
 
     @Serial
-    private static final long serialVersionUID = -5_750_213_243_564_716_861L;
+    private static final long serialVersionUID = 3784389255159604500L;
+
+    private IRunnerCallbackHelper runner ;
 
     private FunctionState state = FunctionState.WAIT;
 
@@ -24,20 +27,26 @@ public class TaskFuture  implements Serializable {
 
     private FunctionAbleRecord<TaskFuture> onTaskError;
 
+    protected IRunnerCallbackHelper getRunner() {
+        return runner;
+    }
 
+    //仅仅为内部使用！！
     private static TaskFuture None(){
-        return new TaskFuture(true);
+        return new TaskFuture(null);
     }
 
-    protected TaskFuture() {
+    protected TaskFuture(IRunnerCallbackHelper runner) {
         this.state = FunctionState.WAIT;
+        this.runner = runner;
     }
 
-    public TaskFuture(boolean isNull) {
+    protected TaskFuture(boolean isNull, IRunnerCallbackHelper runner) {
         if (isNull) {
             this.state = FunctionState.NONE;
         }
         this.state = FunctionState.WAIT;
+        this.runner  = runner;
     }
 
     /**
@@ -132,7 +141,7 @@ public class TaskFuture  implements Serializable {
         this.stateChange(FunctionState.ERROR);
         this.throwable = throwable;
         if(this.onTaskError!=null){
-            callTask(this.onTaskError);
+            thenCallTask(this.onTaskError);
             this.onTaskError = null;
         }
         this.whileDone();
@@ -148,7 +157,7 @@ public class TaskFuture  implements Serializable {
 
     private void whileDone(){
         if(this.onTaskDone !=null){
-            callTask(this.onTaskDone);
+            thenCallTask(this.onTaskDone);
             this.onTaskDone = null;
         }
     }
@@ -175,10 +184,10 @@ public class TaskFuture  implements Serializable {
      */
     public TaskFuture thenExecuteIfError(ITaskFunction taskFunction) {
         final Optional<TaskFuture> taskFuture = this.safeCtrl(() -> {
-            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(), taskFunction);
+            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(this.getRunner()), taskFunction);
             if (this.isDone()) {
                 if (this.state == FunctionState.ERROR) {
-                    return callTask(record);
+                    return thenCallTask(record);
                 }
             } else {
                 this.onTaskError = record;
@@ -198,9 +207,9 @@ public class TaskFuture  implements Serializable {
      */
     public TaskFuture thenExecuteIfDone(ITaskFunction taskFunction)  {
         final Optional<TaskFuture> taskFuture = this.safeCtrl(() -> {
-            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(), taskFunction);
+            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(this.getRunner()), taskFunction);
             if (this.isDone()) {
-                return this.callTask(record);
+                return this.thenCallTask(record);
             } else {
                 this.onTaskDone = record;
                 return record.r();
@@ -212,16 +221,18 @@ public class TaskFuture  implements Serializable {
         return None();
     }
 
-    /**调用任务执行   ---by jason @ 2023/3/23 9:27 */
-    protected static TaskFuture callTask(FunctionAbleRecord record){
-        return AbstractTaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
+    /**调用后续的任务执行   ---by jason @ 2023/3/23 9:27 */
+    protected TaskFuture thenCallTask(FunctionAbleRecord record){
+        //this.runner.execute(record.r(), (ITaskFunction) record.getFun());
+        return this.getRunner().execute(record.r(), (ITaskFunction) record.getFun());
+//        return AbstractTaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
     }
 
 
 
 
+    /** 线程安全的 保护 ，防止数据被串改   ---by jason @ 2023/3/23 9:27 */
     protected  <T> Optional<T> safeCtrl(SimpleConsumer<T> simpleConsumer){
-
         if ( !isNone() && this.tryLock()) {
             try{
                 return Optional.ofNullable(simpleConsumer.apply());

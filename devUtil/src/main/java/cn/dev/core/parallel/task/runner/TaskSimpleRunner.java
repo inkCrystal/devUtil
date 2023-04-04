@@ -1,8 +1,8 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
 
-import cn.dev.parallel.task.api.IFunction;
-import cn.dev.parallel.task.api.ITaskFunction;
-import cn.dev.parallel.task.api.runner.ITaskRunner;
+import cn.dev.core.parallel.task.api.IFunction;
+import cn.dev.core.parallel.task.api.ITaskFunction;
+import cn.dev.core.parallel.task.api.runner.ITaskRunner;
 
 public class TaskSimpleRunner implements ITaskRunner {
 

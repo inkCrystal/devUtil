@@ -1,18 +1,14 @@
 package cn.dev.clock.schedule.config;
 
-import cn.dev.clock.DateTimeEntry;
 import cn.dev.clock.CommonTimeClock;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
 import cn.dev.commons.log.DLog;
 import cn.dev.commons.verification.VerificationTool;
 import cn.dev.exception.ScheduleConfigException;
-import cn.dev.parallel.task.api.ITaskFunction;
+import cn.dev.core.parallel.task.api.ITaskFunction;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-
 
 
 /**

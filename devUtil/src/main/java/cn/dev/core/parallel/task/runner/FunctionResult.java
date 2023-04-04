@@ -1,14 +1,14 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
 
 import cn.dev.clock.CommonTimeClock;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
-import cn.dev.parallel.task.api.IFunction;
+import cn.dev.core.parallel.task.api.IFunction;
 
 import java.io.Serial;
 import java.util.Optional;
 
-public class FunctionResult<T> extends TaskFuture {
+public final class FunctionResult<T> extends TaskFuture {
     @Serial
     private static final long serialVersionUID = 2629881396709043646L;
     private T result ;
@@ -29,18 +29,19 @@ public class FunctionResult<T> extends TaskFuture {
     private FunctionState state = FunctionState.ACCEPT;
 
 
-    protected FunctionResult() {
-        super();
+    protected FunctionResult(IRunnerCallbackHelper runner) {
+        super(runner);
     }
 
-    public FunctionResult(boolean isNull) {
-        super(isNull);
+    public FunctionResult(boolean isNull, IRunnerCallbackHelper runner) {
+        super(isNull,runner);
     }
     private static final <T> FunctionResult<T> None(){
-        return new FunctionResult(true);
+        return new FunctionResult(true,null);
     }
 
-    protected FunctionResult(long expireTime) {
+    protected FunctionResult(long expireTime, IRunnerCallbackHelper runner) {
+        super(runner);
         this.expireTime = expireTime;
         this.timeoutAble = true;
     }
@@ -81,7 +82,7 @@ public class FunctionResult<T> extends TaskFuture {
     protected void fireSuccess() {
         super.fireSuccess();
         if (this.doneSuccess !=null) {
-            this.callFunction(this.get(), (IFunction<T, T>) doneSuccess.getFun());
+            this.thenCallFunction(this.get(), (IFunction<T, T>) doneSuccess.getFun());
         }
     }
 
@@ -90,10 +91,10 @@ public class FunctionResult<T> extends TaskFuture {
         final Optional<FunctionResult<T>> optional = safeCtrl(() -> {
             if (this.isSuccess()) {
                 //已经success ，直接执行
-                return callFunction(this.get(), function);
+                return this.thenCallFunction(this.get(), function);
             }
             if (this.doneSuccess == null) {
-                this.doneSuccess = new FunctionAbleRecord(new FunctionResult<T>(), function);
+                this.doneSuccess = new FunctionAbleRecord(new FunctionResult<T>(this.getRunner()), function);
                 return (FunctionResult<T>)this.doneSuccess.getR();
             }
             return None();
@@ -104,8 +105,16 @@ public class FunctionResult<T> extends TaskFuture {
         return None();
     }
 
-    private FunctionResult<T> callFunction(T t,IFunction<T,T> function){
-        return AbstractTaskRunTool.apply(t,function);
+
+    /**
+     * 执行 后续的 函数调用
+     * @param t
+     * @param function
+     * @return
+     */
+    private FunctionResult<T> thenCallFunction(T t, IFunction<T,T> function){
+        return getRunner().apply(t, function);
+//        return AbstractTaskRunTool.apply(t,function);
     }
 
 

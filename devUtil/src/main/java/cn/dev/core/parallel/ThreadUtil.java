@@ -1,4 +1,4 @@
-package cn.dev.parallel;
+package cn.dev.core.parallel;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

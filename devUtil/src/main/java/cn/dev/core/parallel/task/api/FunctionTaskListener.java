@@ -1,4 +1,4 @@
-package cn.dev.parallel.task.api;
+package cn.dev.core.parallel.task.api;
 
 public interface FunctionTaskListener {
     void onStart();

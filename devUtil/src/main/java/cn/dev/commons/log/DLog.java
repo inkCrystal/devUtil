@@ -1,8 +1,6 @@
 package cn.dev.commons.log;
 
-import cn.dev.parallel.ThreadUtil;
-
-import java.util.logging.Logger;
+import cn.dev.core.parallel.ThreadUtil;
 
 public class DLog {
 

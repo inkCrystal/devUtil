@@ -1,16 +1,16 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
 
 
-import cn.dev.parallel.task.api.FunctionTaskListener;
-import cn.dev.parallel.task.api.IFunction;
-import cn.dev.parallel.task.api.ITaskFunction;
+import cn.dev.core.parallel.task.api.FunctionTaskListener;
+import cn.dev.core.parallel.task.api.IFunction;
+import cn.dev.core.parallel.task.api.ITaskFunction;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class AbstractTaskRunTool {
+public abstract class AbstractTaskRunTool {
     private static final int START = 1 ;
     private static final int ERROR = 2;
     private static final  int COMPLETE =3 ;
@@ -50,7 +50,7 @@ public class AbstractTaskRunTool {
      * @param <V>
      */
     public static  <D,V> FunctionResult<V> apply(D d, IFunction<D,V> function){
-        FunctionResult<V> r = new FunctionResult<>();
+        FunctionResult<V> r = new FunctionResult<>(null);
         r.fireAccept();
         executor.execute(()->{
             fireLister(START);
@@ -70,7 +70,7 @@ public class AbstractTaskRunTool {
     }
 
     public static TaskFuture execute(ITaskFunction taskFunction){
-        var taskFuture = new TaskFuture();
+        var taskFuture = new TaskFuture(null);
         return execute(taskFuture,taskFunction);
     }
 
@@ -91,6 +91,9 @@ public class AbstractTaskRunTool {
         });
         return taskFuture;
     }
+
+
+
 
 
 

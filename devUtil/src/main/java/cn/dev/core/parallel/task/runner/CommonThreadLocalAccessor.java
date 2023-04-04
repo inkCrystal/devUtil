@@ -1,4 +1,4 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
 
 import cn.dev.commons.string.StrUtils;
 
@@ -6,17 +6,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 通用的 ThreadLocal 存储器连接管理
+ *  1.主要服务于线程间 内存资源的 传递共享
+ *
+ */
 public class CommonThreadLocalAccessor implements AutoCloseable{
-    private static final ThreadLocal<Map<String, Object>> context = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, Object>> threadLocalContext = new ThreadLocal<>();
 
     public CommonThreadLocalAccessor() {}
 
-
-
-
-
     public Map<String,Object> getContextMap(){
-        Map<String, Object> map = context.get();
+        Map<String, Object> map = threadLocalContext.get();
         if (map==null) {
             map = new HashMap<>();
         }
@@ -37,7 +38,7 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
             this.removeKey(key);
         }
         contextMap.put(key,data);
-        context.set(contextMap);
+        threadLocalContext.set(contextMap);
     }
 
     public void removeKey(String key){
@@ -48,9 +49,9 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
 
     private void flushToThreadLocal(Map<String, Object> contextMap ){
         if (contextMap.isEmpty() ) {
-            context.remove();
+            threadLocalContext.remove();
         }else{
-            context.set(contextMap);
+            threadLocalContext.set(contextMap);
         }
     }
 
@@ -63,10 +64,21 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
         return getContextMap().get(key);
     }
 
+    /**
+     * 获取对象 ，如果您能够确定 数据类型 是准确的
+     * @param key
+     * @param clazz
+     * @return
+     * @param <T>
+     */
+    public <T> T get(String key, Class<T> clazz){
+        return (T) get(key);
+    }
+
     @Override
     public void close() throws Exception {
-        if (context.get()!=null) {
-            context.remove();
+        if (threadLocalContext.get()!=null) {
+            threadLocalContext.remove();
         }
     }
 }
