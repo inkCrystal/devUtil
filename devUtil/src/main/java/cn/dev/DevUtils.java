@@ -8,5 +8,4 @@ package cn.dev;
  */
 public class DevUtils {
 
-
 }
