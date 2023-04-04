@@ -1,5 +1,6 @@
 package cn.dev.clock.schedule.config;
 
+import cn.dev.commons.log.DLog;
 import cn.dev.exception.ScheduleConfigException;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ScheduleConfigBuilderTest {
 
     private void print(LocalDateTime dateTime){
-        System.out.print(" "+dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        DLog.info(" "+dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 
 
@@ -37,7 +38,7 @@ class ScheduleConfigBuilderTest {
 
     public void runtest(ScheduledConfig config ,String title ){
         LocalDateTime now = LocalDateTime.now();
-        System.out.println("\n测试 " + title + ">>");
+        DLog.info("\n测试 " + title + ">>");
         ScheduledConfigTester tester = config.tester();
         long start = System.currentTimeMillis();
         for(int i = 0; i < 10; i++) {
@@ -45,7 +46,7 @@ class ScheduleConfigBuilderTest {
             print(now);
         }
         long end = System.currentTimeMillis();
-        System.out.println("\n耗时 " + (end - start) + " ms");
+        DLog.info("\n耗时 " + (end - start) + " ms");
     }
 
 

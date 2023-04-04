@@ -362,14 +362,4 @@ public class DateTimeUtil {
 
     }
 
-
-    public static void main(String[] args) {
-
-        System.out.println(between(LocalDateTime.now(),LocalDateTime.now().plusDays(-1)).toHours());
-
-    }
-
-
-//    public static long secondOfYear(LocalDateTime localDateTime){
-//    }
 }

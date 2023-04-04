@@ -93,15 +93,6 @@ public class AbstractTaskRunTool {
     }
 
 
-    public static void main(String[] args) {
-        TaskFuture taskFuture = execute(()->{
-            System.out.println("hello");
-        }).thenExecuteIfError(()->{
-            System.out.println("遇到了异常");
-        });
-    }
-
-
 
 
 }

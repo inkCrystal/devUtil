@@ -2,6 +2,7 @@ package cn.dev.clock;
 
 import cn.dev.clock.listener.ITimeClockListener;
 import cn.dev.commons.datetime.DateTimeUtil;
+import cn.dev.commons.log.DLog;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -366,7 +367,7 @@ public class CommonTimeClock {
         if(1>0){
             return;
         }
-        System.out.println("让我们开始吧 ");
+        DLog.info("让我们开始吧 ");
         int errorCount = 0;
         int testCount = 0 ;
 
@@ -377,19 +378,19 @@ public class CommonTimeClock {
             final String vClockStr = getInstance().getVClock().toString();
             if(!vClockStr.equals(localDateStr)){
                 errorCount ++ ;
-                System.out.println("ERROR " + errorCount + " times "   );
-                System.out.println("-------------------------");
-                System.out.println("Local DateTime " + now.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss SSS")));
-                System.out.println("VClockDateTime " + vClockStr);
-                System.out.println("-------------------------");
+                DLog.info("ERROR " + errorCount + " times "   );
+                DLog.info("-------------------------");
+                DLog.info("Local DateTime " + now.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss SSS")));
+                DLog.info("VClockDateTime " + vClockStr);
+                DLog.info("-------------------------");
             }else{
-                System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" +
+                DLog.info("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b" +
                         "" + vClockStr );
 
 
             }
             if (testCount%100 == 0 ) {
-                System.out.println("检测"+(testCount ) + "次 ， 目前出现偏差"+errorCount+"次");
+                DLog.info("检测"+(testCount ) + "次 ， 目前出现偏差"+errorCount+"次");
             }
 
             Thread.sleep(100);

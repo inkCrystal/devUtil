@@ -43,7 +43,6 @@ public class BinaryTool {
                     return false;
                 }
             }
-            System.out.println("ok ");
             return true;
         },"并非二进制数据字符串");
         return Long.valueOf(str,2);
@@ -140,16 +139,4 @@ public class BinaryTool {
         return x;
     }
 
-
-//    public static void main(String[] args) {
-//        long x = 1l;
-//        for (int i = 0; i <12+31+1 ; i++) {
-//            x = leftMove(x );
-//            System.out.println(toHorizontalString(x));
-//        }
-//
-//        System.out.println(x );
-//        System.out.println(toHorizontalString(x));
-//        System.out.println(toHorizontalString(ofBinaryString("001100")));
-//    }
 }

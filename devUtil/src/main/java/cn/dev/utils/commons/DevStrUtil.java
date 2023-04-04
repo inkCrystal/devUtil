@@ -106,24 +106,4 @@ public class DevStrUtil {
     }
 
 
-
-    public static void main(String[] args) throws PinyinException {
-
-
-        System.out.println(PinyinHelper.getShortPinyin("重庆人民也很欢饮茜茜"));
-        final String source = "单先生说：“重庆人民的体重都很重,余茜茜也认同这个观点。单凭这点，我们就可以庆祝了！”";
-        System.out.println(source);
-        System.out.println(PinyinHelper.convertToPinyinString(source + "！"," ", PinyinFormat.WITH_TONE_MARK));
-        System.out.println(PinyinHelper.convertToPinyinString(source + "！"," ", PinyinFormat.WITH_TONE_NUMBER));
-
-        System.out.println(PinyinHelper.convertToPinyinString(source + "！"," ", PinyinFormat.WITHOUT_TONE));
-        System.out.println(containsChinese("x啊"));
-    }
-
-
-
-
-
-
-
 }

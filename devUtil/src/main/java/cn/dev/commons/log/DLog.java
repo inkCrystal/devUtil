@@ -8,25 +8,25 @@ public class DLog {
 
     private static final int TRACE =1 ,DEBUG =2 , INFO =3 , WARN =4 ,ERROR = 5;
 
-    public static void trace(String message){
+    public static void trace(Object message){
         print(TRACE,message);
     }
 
-    public static void debug(String message){
+    public static void debug(Object message){
         print(DEBUG,message);
     }
 
-    public static void info(String message){
+
+    public static void info(Object message){
         print(INFO,message);
     }
 
-    public static void warn(String message){
+    public static void warn(Object message){
         print(WARN,message);
     }
 
-    public static void error(String message){
+    public static void error(Object message){
         print(ERROR,message);
-
     }
 
 
@@ -35,15 +35,11 @@ public class DLog {
      * @param level
      * @param message
      */
-    private static void print(int level ,String message){
-
+    private static void print(int level ,Object message){
         defaultPrint(level,message);
-
-
     }
 
-    private static void defaultPrint(int level , String message){
-        Logger.getLogger("").info("");
+    private static void defaultPrint(int level , Object message){
         StringBuilder sb =new StringBuilder("[");
         sb.append(ThreadUtil.threadName());
         while (sb.length() < 12) {

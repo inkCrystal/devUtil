@@ -147,23 +147,4 @@ public class DevBase312Code {
 
 
 
-
-
-
-
-    public static void main(String[] args) {
-        String source = "0000";
-
-        final String s = encodeString(source);
-        System.out.println(s );
-        System.out.println(source.length());
-        System.out.println(s.length());
-
-        Arrays.sort(dic);
-
-        System.out.println( Arrays.toString(dic));
-    }
-
-
-
 }

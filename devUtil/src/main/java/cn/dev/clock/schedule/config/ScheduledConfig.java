@@ -4,6 +4,7 @@ import cn.dev.clock.DateTimeEntry;
 import cn.dev.clock.CommonTimeClock;
 import cn.dev.commons.BinaryTool;
 import cn.dev.commons.RandomUtil;
+import cn.dev.commons.log.DLog;
 import cn.dev.commons.verification.VerificationTool;
 import cn.dev.exception.ScheduleConfigException;
 import cn.dev.parallel.task.api.ITaskFunction;
@@ -129,7 +130,7 @@ public class ScheduledConfig {
     public ScheduledConfig randomSecondIfZero(){
         if(this.secondConfig == 0){
             int newS = RandomUtil.nextInt()%60;
-            System.out.println(secondConfig + ">" + newS + ">" + newS%60);
+            DLog.info(secondConfig + ">" + newS + ">" + newS%60);
             this.secondConfig = newS;
         }
         return this;
