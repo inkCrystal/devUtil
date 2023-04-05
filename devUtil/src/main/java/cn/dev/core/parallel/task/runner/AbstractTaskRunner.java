@@ -1,5 +1,6 @@
 package cn.dev.core.parallel.task.runner;
 
+import cn.dev.commons.log.DLog;
 import cn.dev.core.parallel.share.IThreadShareFilter;
 import cn.dev.core.parallel.share.TaskShareData;
 import cn.dev.core.parallel.task.api.IFunction;
@@ -24,7 +25,7 @@ public class AbstractTaskRunner implements  IRunnerCallbackHelper {
 
 
     final void fireLister(int event ){
-        try {
+        try{
             for (FunctionTaskListener taskListener : listener) {
                 switch (event) {
                     case START:
@@ -41,6 +42,7 @@ public class AbstractTaskRunner implements  IRunnerCallbackHelper {
                 }
             }
         }catch (Exception e){
+            DLog.error("fireLister error" + e.toString());
         }
     }
 

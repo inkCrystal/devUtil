@@ -26,15 +26,15 @@ public class SharedTaskRunner extends AbstractTaskRunner{
     public TaskFuture execute(TaskFuture taskFuture, ITaskFunction taskFunction) {
         return super.execute(taskFuture, taskFunction);
     }
-
-    private  <T> Object sharedCall(TaskLocalSafeRunner.Fn function){
-        try(CommonThreadLocalAccessor localAccessor=new CommonThreadLocalAccessor()){
-            return function.call();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
+//
+//    private  <T> Object sharedCall(TaskLocalSafeRunner.Fn function){
+//        try(CommonThreadLocalAccessor localAccessor=new CommonThreadLocalAccessor()){
+//            return function.call();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 
 }
