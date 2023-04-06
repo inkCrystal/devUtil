@@ -1,17 +1,17 @@
 package cn.dev.parallel.task.runner;
 
 import cn.dev.commons.log.DLog;
-import cn.dev.core.parallel.task.runner.AbstractTaskRunner;
+import cn.dev.core.parallel.task.runner.DefaultTaskRunner;
 import cn.dev.core.parallel.task.runner.FunctionResult;
 import org.junit.jupiter.api.Test;
 
 class AbstractTaskRunnerTest {
 
 
-    private static AbstractTaskRunner runner;
-    public static AbstractTaskRunner getRunner() {
+    private static DefaultTaskRunner runner;
+    public static DefaultTaskRunner getRunner() {
         if(runner == null) {
-            runner = new AbstractTaskRunner();
+            runner = new DefaultTaskRunner();
         }
         return runner;
     }

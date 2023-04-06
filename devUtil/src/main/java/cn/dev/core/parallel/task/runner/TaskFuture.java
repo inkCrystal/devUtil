@@ -2,6 +2,7 @@ package cn.dev.core.parallel.task.runner;
 
 import cn.dev.clock.CommonTimeClock;
 import cn.dev.core.parallel.task.api.ITaskFunction;
+import cn.dev.core.parallel.task.api.runner.IRunnerCallbackHelper;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -27,26 +28,22 @@ public sealed class TaskFuture implements Serializable
 
     private FunctionAbleRecord<TaskFuture> onTaskError;
 
-    protected IRunnerCallbackHelper getRunner() {
-        return runner;
-    }
 
     //仅仅为内部使用！！
     private static TaskFuture None(){
-        return new TaskFuture(null);
+        return new TaskFuture(true);
     }
 
-    protected TaskFuture(IRunnerCallbackHelper runner) {
+    protected TaskFuture() {
         this.state = FunctionState.WAIT;
-        this.runner = runner;
     }
 
-    protected TaskFuture(boolean isNull, IRunnerCallbackHelper runner) {
+    protected TaskFuture(boolean isNull) {
         if (isNull) {
             this.state = FunctionState.NONE;
+        }else {
+            this.state = FunctionState.WAIT;
         }
-        this.state = FunctionState.WAIT;
-        this.runner  = runner;
     }
 
     /**
@@ -184,7 +181,7 @@ public sealed class TaskFuture implements Serializable
      */
     public TaskFuture thenExecuteIfError(ITaskFunction taskFunction) {
         final Optional<TaskFuture> taskFuture = this.safeCtrl(() -> {
-            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(this.getRunner()), taskFunction);
+            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(), taskFunction);
             if (this.isDone()) {
                 if (this.state == FunctionState.ERROR) {
                     return thenCallTask(record);
@@ -207,7 +204,7 @@ public sealed class TaskFuture implements Serializable
      */
     public TaskFuture thenExecuteIfDone(ITaskFunction taskFunction)  {
         final Optional<TaskFuture> taskFuture = this.safeCtrl(() -> {
-            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(this.getRunner()), taskFunction);
+            FunctionAbleRecord<TaskFuture> record = new FunctionAbleRecord<>(new TaskFuture(), taskFunction);
             if (this.isDone()) {
                 return this.thenCallTask(record);
             } else {
@@ -223,9 +220,7 @@ public sealed class TaskFuture implements Serializable
 
     /**调用后续的任务执行   ---by jason @ 2023/3/23 9:27 */
     protected TaskFuture thenCallTask(FunctionAbleRecord record){
-        //this.runner.execute(record.r(), (ITaskFunction) record.getFun());
-        return this.getRunner().execute(record.r(), (ITaskFunction) record.getFun());
-//        return AbstractTaskRunTool.execute(record.r(), (ITaskFunction) record.getFun());
+        return TaskExecutor.getCallbackHelper().execute(record.r(), (ITaskFunction) record.getFun());
     }
 
 

@@ -1,6 +1,7 @@
 package cn.dev.core.parallel.task.runner;
 
 import cn.dev.clock.CommonTimeClock;
+import cn.dev.core.parallel.task.api.runner.IRunnerCallbackHelper;
 import cn.dev.exception.TaskCanceledException;
 import cn.dev.exception.TaskTimeoutException;
 import cn.dev.core.parallel.task.api.IFunction;
@@ -29,19 +30,18 @@ public final class FunctionResult<T> extends TaskFuture {
     private FunctionState state = FunctionState.ACCEPT;
 
 
-    protected FunctionResult(IRunnerCallbackHelper runner) {
-        super(runner);
+    protected FunctionResult() {
     }
 
-    public FunctionResult(boolean isNull, IRunnerCallbackHelper runner) {
-        super(isNull,runner);
+    private FunctionResult(boolean isNull) {
+        super(isNull);
     }
-    private static final <T> FunctionResult<T> None(){
-        return new FunctionResult(true,null);
+    private static <T> FunctionResult<T> None(){
+        return new FunctionResult(true);
     }
 
-    protected FunctionResult(long expireTime, IRunnerCallbackHelper runner) {
-        super(runner);
+    protected FunctionResult(long expireTime ) {
+        super();
         this.expireTime = expireTime;
         this.timeoutAble = true;
     }
@@ -94,7 +94,7 @@ public final class FunctionResult<T> extends TaskFuture {
                 return this.thenCallFunction(this.get(), function);
             }
             if (this.doneSuccess == null) {
-                this.doneSuccess = new FunctionAbleRecord(new FunctionResult<T>(this.getRunner()), function);
+                this.doneSuccess = new FunctionAbleRecord(new FunctionResult<T>(), function);
                 return (FunctionResult<T>)this.doneSuccess.getR();
             }
             return None();
@@ -113,7 +113,7 @@ public final class FunctionResult<T> extends TaskFuture {
      * @return
      */
     private FunctionResult<T> thenCallFunction(T t, IFunction<T,T> function){
-        return getRunner().apply(t, function);
+        return TaskExecutor.getRunner().apply(t, function);
 //        return AbstractTaskRunTool.apply(t,function);
     }
 

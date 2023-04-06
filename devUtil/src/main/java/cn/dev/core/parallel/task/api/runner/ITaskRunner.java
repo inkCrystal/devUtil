@@ -20,12 +20,12 @@ public interface ITaskRunner {
 
     /**
      * 运行任务
-     * @param taskFunction
+     * @param task
      * @return
      */
-    TaskFuture execute(ITaskFunction taskFunction);
+    TaskFuture execute(ITaskFunction task);
 
-//
+
 
 
 }
