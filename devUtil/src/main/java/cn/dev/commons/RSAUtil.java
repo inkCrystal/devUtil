@@ -1,4 +1,4 @@
-package cn.dev.utils.commons;
+package cn.dev.commons;
 
 import org.apache.commons.codec.binary.Base64;
 

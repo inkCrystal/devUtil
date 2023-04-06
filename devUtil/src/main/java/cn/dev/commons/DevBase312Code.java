@@ -1,4 +1,4 @@
-package cn.dev.utils.commons;
+package cn.dev.commons;
 
 import cn.dev.commons.string.StrUtils;
 

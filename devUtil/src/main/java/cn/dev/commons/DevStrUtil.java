@@ -1,4 +1,4 @@
-package cn.dev.utils.commons;
+package cn.dev.commons;
 
 import com.github.stuxuhai.jpinyin.PinyinException;
 import com.github.stuxuhai.jpinyin.PinyinFormat;
