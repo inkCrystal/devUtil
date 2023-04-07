@@ -1,8 +1,10 @@
-package cn.dev.parallel.task.runner;
+package cn.dev.core.parallel.task.runner;
+
 
 import cn.dev.commons.log.DLog;
 import cn.dev.core.parallel.task.runner.DefaultTaskRunner;
 import cn.dev.core.parallel.task.runner.FunctionResult;
+import cn.dev.core.parallel.task.runner.TaskExecutor;
 import org.junit.jupiter.api.Test;
 
 class AbstractTaskRunnerTest {
@@ -11,7 +13,7 @@ class AbstractTaskRunnerTest {
     private static DefaultTaskRunner runner;
     public static DefaultTaskRunner getRunner() {
         if(runner == null) {
-            runner = new DefaultTaskRunner();
+            runner = (DefaultTaskRunner) TaskExecutor.getRunner();
         }
         return runner;
     }

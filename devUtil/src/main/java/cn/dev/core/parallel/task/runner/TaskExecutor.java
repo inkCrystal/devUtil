@@ -1,5 +1,9 @@
 package cn.dev.core.parallel.task.runner;
 
+import cn.dev.clock.schedule.ScheduleManger;
+import cn.dev.clock.schedule.ScheduleTaskRegister;
+import cn.dev.commons.log.DLog;
+import cn.dev.core.parallel.task.api.ITaskFunction;
 import cn.dev.core.parallel.task.api.runner.IRunnerCallbackHelper;
 import cn.dev.core.parallel.task.api.runner.ITaskRunner;
 import cn.dev.core.parallel.task.api.runner.ITaskRunnerMonitor;
@@ -9,37 +13,42 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TaskExecutor {
+    private static final ExecutorService executorService =DefaultTaskThreadPool.getExecutorService();
 
-    private static final Executor executor = Executors.newFixedThreadPool(12);
-
-    private static final Queue<DefaultTaskRunner> activeQueue =new ArrayBlockingQueue<>(10);
-
-    static {
-        // auto check
+    public static void main(String[] args) {
+        List<ITaskRunner> list = new ArrayList<>();
+        for(int i = 0 ; i < 512 ; i++){
+            getRunner().execute(()->{
+                Thread.sleep(10);
+                System.out.println( Thread.currentThread().getName() );
+            });
+        }
+        System.out.println("hohoho");
     }
 
-    private static void autoCheck(){
 
+    public static TaskFuture execute(ITaskFunction taskFunction){
+        return getRunner().execute(taskFunction);
     }
-
-
 
 
     public static ITaskRunner getRunner(){
-        return DefaultTaskRunner.newBuild();
+        return DefaultTaskRunner.newBuild(executorService);
     }
 
-
     public static ITaskRunnerMonitor getMonitor(){
-        return DefaultTaskRunner.newBuild();
+        return (ITaskRunnerMonitor) getRunner();
     }
 
     public static IRunnerCallbackHelper getCallbackHelper(){
-        return DefaultTaskRunner.newBuild();
+        return (IRunnerCallbackHelper) getRunner();
     }
+
+
 
 
 }

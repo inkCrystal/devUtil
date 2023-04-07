@@ -36,16 +36,11 @@ public class ScheduleManger {
      * @param config
      */
     private void putConfig(  ScheduledConfig config){
-
         List<ScheduledConfig> configList = getOrInitConfigListByKey("key");
         configList.add(config);
     }
 
 
-    public void register(ScheduledConfig config){
-        if(config.isConfigAvailable()){
-        }
-    }
 
 
 

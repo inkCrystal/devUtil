@@ -1,36 +1,57 @@
 package cn.dev.core.parallel.task.runner;
 
+import cn.dev.core.parallel.share.LocalTaskShareHelper;
 import cn.dev.core.parallel.task.api.FunctionTaskListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FunctionTaskListenerManager  {
 
+    private static final List<FunctionTaskListener> USER_DEFINED_LISTENER =new ArrayList<>();
     protected static final short START = 1 ;
     protected static final short ERROR = 2;
     protected static final  short COMPLETE =3 ;
-    private static final List<FunctionTaskListener> listener =new ArrayList<>();
-    private static final List<FunctionTaskListener> defaultListener = new ArrayList<>();
-
-
-    protected List<FunctionTaskListener> getDefaultListener() {
-        return defaultListener;
+    private FunctionTaskListenerManager() {
     }
 
-    public List<FunctionTaskListener> getListener() {
-        return listener;
+    protected static FunctionTaskListenerManager getManager(){
+        return new FunctionTaskListenerManager();
+
     }
 
+    public List<FunctionTaskListener> getUserDefinedTaskListener() {
+        return USER_DEFINED_LISTENER;
+    }
 
     protected void callFire(short event ){
-        getDefaultListener().forEach(listener->{
-            doFire(event,listener);
-        });
-        getListener().forEach(listener->{
+        //执行内置的 listener，一般是动态的
+        callBuiltInListener(event);
+        // 执行用户设置的 listener
+        getUserDefinedTaskListener().forEach(listener->{
             doFire(event,listener);
         });
     }
+
+
+    /**
+     * 这边 执行 内置的 listener，优先级最高
+     * @param event
+     */
+    private void callBuiltInListener(short event){
+        // 线程共享的 taskListener
+        tryOptionalFire(event,LocalTaskShareHelper.getTaskListenerOptional());
+
+    }
+
+    private void tryOptionalFire(short event,Optional<FunctionTaskListener> optional){
+        if (optional.isPresent()) {
+            doFire(event,optional.get());
+        }
+    }
+
+
 
 
     /**

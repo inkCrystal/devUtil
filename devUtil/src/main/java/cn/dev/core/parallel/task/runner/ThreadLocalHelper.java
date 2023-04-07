@@ -6,17 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * 通用的 ThreadLocal 存储器连接管理
- *  1.主要服务于线程间 内存资源的 传递共享
- *
- */
-public class CommonThreadLocalAccessor implements AutoCloseable{
+@Deprecated
+public class ThreadLocalHelper {
     private static final ThreadLocal<Map<String, Object>> threadLocalContext = new ThreadLocal<>();
 
-    public CommonThreadLocalAccessor() {}
-
-    public Map<String,Object> getContextMap(){
+    public static Map<String,Object> getContextMap(){
         Map<String, Object> map = threadLocalContext.get();
         if (map==null) {
             map = new HashMap<>();
@@ -24,30 +18,30 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
         return map;
     }
 
-    /**
-     * 存储到 threadLocal
-     * @param key
-     * @param data
-     */
-    public void set(String key, Object data){
+    public static void set(String key, Object data){
         if(StrUtils.isEmpty(key)){
             return;
         }
         Map<String, Object> contextMap = getContextMap();
         if(!Objects.nonNull(data)){
-            this.removeKey(key);
+            removeKey(key);
         }
         contextMap.put(key,data);
         threadLocalContext.set(contextMap);
     }
 
-    public void removeKey(String key){
+
+    public static void removeKey(String key){
         Map<String, Object> contextMap = getContextMap();
         contextMap.remove(key);
         flushToThreadLocal(contextMap);
     }
 
-    private void flushToThreadLocal(Map<String, Object> contextMap ){
+    /**
+     * 刷新到 threadLocal
+     * @param contextMap
+     */
+    private static void flushToThreadLocal(Map<String, Object> contextMap ){
         if (contextMap.isEmpty() ) {
             threadLocalContext.remove();
         }else{
@@ -60,7 +54,7 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
      * @param key
      * @return
      */
-    public Object get(String key){
+    public static Object get(String key){
         return getContextMap().get(key);
     }
 
@@ -71,14 +65,10 @@ public class CommonThreadLocalAccessor implements AutoCloseable{
      * @return
      * @param <T>
      */
-    public <T> T get(String key, Class<T> clazz){
+    public static <T> T get(String key, Class<T> clazz){
         return (T) get(key);
     }
 
-    @Override
-    public void close() throws Exception {
-        if (threadLocalContext.get()!=null) {
-            threadLocalContext.remove();
-        }
-    }
+
+
 }

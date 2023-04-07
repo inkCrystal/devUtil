@@ -14,13 +14,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * 抽象任务 Runner
  */
 public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,ITaskRunnerMonitor{
-    private static final ExecutorService executor = Executors.newFixedThreadPool(8);
+//    private static final ExecutorService executor = Executors.newFixedThreadPool(8);
 
-    protected final static DefaultTaskRunner newBuild(){
-        return new DefaultTaskRunner();
+    private ExecutorService executorService;
+    protected final static DefaultTaskRunner newBuild(ExecutorService executorService){
+        return new DefaultTaskRunner(executorService);
     }
 
-    private DefaultTaskRunner(){}
+    private DefaultTaskRunner(ExecutorService executorService){
+        this.executorService = executorService;
+    }
 
 
     private AtomicLong totalTaskCount = new AtomicLong(0);
@@ -28,7 +31,7 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
     private AtomicLong startTaskCount = new AtomicLong(0);
 
 
-    private FunctionTaskListenerManager listenerManager = new FunctionTaskListenerManager();
+    private FunctionTaskListenerManager listenerManager = FunctionTaskListenerManager.getManager();
 
     final void toFireListenerEvent(short event ){
         if(event == FunctionTaskListenerManager.START) {
@@ -51,7 +54,7 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
     public <D, V> FunctionResult<V> apply(D d, IFunction<D, V> function) {
         FunctionResult<V> r = new FunctionResult<>();
         r.fireAccept();
-        executor.execute(()->{
+        executorService.execute(()->{
             toFireListenerEvent(FunctionTaskListenerManager.START);
             try {
                 r.fireStart();
@@ -75,7 +78,7 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
     @Override
     public TaskFuture execute(TaskFuture taskFuture, ITaskFunction task) {
         taskFuture.fireAccept();
-        executor.execute(()->{
+        executorService.execute(()->{
             toFireListenerEvent(FunctionTaskListenerManager.START);
             taskFuture.fireStart();
             try {
