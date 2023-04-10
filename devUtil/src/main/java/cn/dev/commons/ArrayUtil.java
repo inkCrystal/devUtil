@@ -3,9 +3,7 @@ package cn.dev.commons;
 import cn.dev.commons.verification.VerificationTool;
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -676,5 +674,20 @@ public class ArrayUtil {
 
     }
 
+    public static <T> List<T> toList(T[] array){
+        VerificationTool.isNotNull(array,"原始数组为NULL");
+        List<T> list =new ArrayList<>();
+        for (T t : array) {
+            list.add(t);
+        }
+        return list;
+    }
+
+    public static <T> T[] fromList(List<T> list){
+        VerificationTool.isNotNull(list,"原始列表为NULL");
+        VerificationTool.collectionIsNotEmpty(list,"原始列表size为0");
+        T[] array = (T[]) genericsArray(list.get(0).getClass(), list.size());
+        return list.toArray(array);
+    }
 
 }
