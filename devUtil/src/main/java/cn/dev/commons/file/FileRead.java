@@ -28,6 +28,9 @@ public class FileRead {
     }
 
 
+
+
+
     //将文件按行读取成流
     public Stream<String> readTextFileForStream(File file) throws FileNotFoundException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
@@ -40,7 +43,7 @@ public class FileRead {
 
     public static void main(String[] args) throws IOException {
         System.out.println("xxx ");
-       BufferedReader bufferedReader =new BufferedReader(new InputStreamReader(System.in));
+           BufferedReader bufferedReader =new BufferedReader(new InputStreamReader(System.in));
        System.out.println("start !!");
         TaskExecutor.getRunner().execute(()->{
             new FileRead().writeFileToEnd(new File("C:\\Developer\\codeSpace\\incubate\\utils\\devUtil\\devUtil\\src\\main\\resources\\test.txt"),bufferedReader.lines());
