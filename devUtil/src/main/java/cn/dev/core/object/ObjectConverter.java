@@ -46,16 +46,17 @@ public class ObjectConverter {
 //            logger.warn("对象"+ clazz +" 未包含默认无参构造方法，构造结果可能出现异常偏差！");
 //        }
         Constructor[] declaredConstructors = clazz.getDeclaredConstructors();
-        for (Constructor constructor : declaredConstructors) {
-        }
+//        for (Constructor constructor : declaredConstructors) {
+//        }
         for (Constructor constructor : declaredConstructors) {
             if(constructor.getParameterCount() == 0){
                 constructor.setAccessible(true);
                 return instance(constructor);
             }
         }
-        logger.warn("对象"+ clazz +" 未包含默认无参构造方法，构造结果可能出现异常偏差！");
-
+        if (logger.isWarnEnabled()) {
+            logger.warn("对象"+ clazz +" 未包含默认无参构造方法，构造结果可能出现异常偏差！");
+        }
         for (Constructor constructor : declaredConstructors) {
              try{
                  return instanceByConstructor(constructor,map);
