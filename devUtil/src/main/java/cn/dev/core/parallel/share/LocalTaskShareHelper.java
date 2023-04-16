@@ -21,6 +21,15 @@ public final class LocalTaskShareHelper {
         }
     }
 
+    public static boolean isSharerSet() {
+        return sharer != null;
+    }
+
+
+    public static IThreadSharer getSharer() {
+        return sharer;
+    }
+
     public static Optional<FunctionTaskListener> getTaskListenerOptional() {
         if (sharer == null){
             return Optional.ofNullable(null);

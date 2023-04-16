@@ -1,11 +1,16 @@
 package cn.dev.core.object;
 
+import cn.dev.core.model.DataRecord;
+import cn.dev.core.model.Identity;
 import cn.dev.core.object.cache.ClassFieldMapper;
 import cn.dev.core.object.cache.ObjectReflectCacheHolder;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class ObjectUtil {
 
@@ -114,5 +119,55 @@ public class ObjectUtil {
         //private transient  int x=1;
 
 
+
     }
+
+    /**
+     * 序列化 对象
+     * @param t
+     * @return
+     */
+    public static byte[] serializeObject(Object t){
+        byte[] bytes = null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(t);
+            oos.flush();
+            bytes = bos.toByteArray ();
+            oos.close();
+            bos.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return bytes;
+    }
+
+    /**
+     * 反序列化
+     * @param bytes
+     * @param tClass
+     * @return
+     * @param <T>
+     */
+    public static <T> T deserialization(byte[] bytes,Class<T>  tClass) {
+        Object obj = null;
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream (bytes);
+            ObjectInputStream ois = new ObjectInputStream (bis);
+            obj = ois.readObject();
+            ois.close();
+            bis.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        return (T)obj;
+    }
+
+
+
+
+
 }

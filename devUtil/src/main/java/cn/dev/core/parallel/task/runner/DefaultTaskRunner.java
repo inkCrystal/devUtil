@@ -71,11 +71,6 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
     }
 
     @Override
-    public TaskFuture execute(ITaskFunction task) {
-        return execute(new TaskFuture(),task);
-    }
-
-    @Override
     public TaskFuture execute(TaskFuture taskFuture, ITaskFunction task) {
         taskFuture.fireAccept();
         executorService.execute(()->{
@@ -93,6 +88,13 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
         });
         return taskFuture;
     }
+
+
+    @Override
+    public TaskFuture execute(ITaskFunction task) {
+        return execute(new TaskFuture(),task);
+    }
+
 
     @Override
     public long getTaskCount() {
@@ -125,6 +127,27 @@ public class DefaultTaskRunner implements  ITaskRunner , IRunnerCallbackHelper ,
 
     public IRunnerCallbackHelper getCallbackHelper(){
         return this;
+    }
+}
+class FunExecutor implements  ITaskRunner , IRunnerCallbackHelper, AutoCloseable{
+    @Override
+    public void close() throws Exception {
+
+    }
+
+    @Override
+    public <D, V> FunctionResult<V> apply(D d, IFunction<D, V> function) {
+        return null;
+    }
+
+    @Override
+    public TaskFuture execute(ITaskFunction task) {
+        return null;
+    }
+
+    @Override
+    public TaskFuture execute(TaskFuture taskFuture, ITaskFunction taskFunction) {
+        return null;
     }
 }
 

@@ -20,6 +20,9 @@ public class BinaryTool {
 
     // 左移 n位
     public static long leftMove(long target,int moveCount){
+        if(moveCount<32){
+            return target << moveCount;
+        }
         for (int i = 0; i < moveCount; i++) {
             target = leftMove(target);
         }
@@ -29,6 +32,9 @@ public class BinaryTool {
 
     // 右移 n位
     public static long rightMove(long target,int moveCount){
+        if(moveCount<32){
+            return target >> moveCount;
+        }
         for (int i = 0; i < moveCount; i++) {
             target = rightMove(target);
         }
@@ -139,4 +145,13 @@ public class BinaryTool {
         return x;
     }
 
+    public static void main(String[] args) {
+        System.out.println(Byte.MAX_VALUE);
+        byte b = Integer.valueOf("10000000",2).byteValue();
+        int i = b;
+        System.out.println(2<<1);
+
+        System.out.println((byte)0xff>>7);
+
+    }
 }
