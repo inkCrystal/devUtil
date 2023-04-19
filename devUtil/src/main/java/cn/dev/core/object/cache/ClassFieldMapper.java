@@ -2,22 +2,18 @@ package cn.dev.core.object.cache;
 
 import cn.dev.clock.CommonTimeClock;
 import cn.dev.commons.ArrayUtil;
+import cn.dev.core.object.ObjectUtil;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ClassFieldMapper {
 
     private long lastFire = CommonTimeClock.currentMillis();
-
     /**
      * 目标对象类
      */
     private final Class<?> clazz;
-
     /**
      * 目标对象类的所有直接字段
      */
@@ -29,9 +25,15 @@ public class ClassFieldMapper {
     private boolean hasSuperClass;
 
     public ClassFieldMapper(Class<?> clazz, Field[]  declaredFields) {
+        if(clazz == null){
+            throw new RuntimeException("ClassFieldMapper clazz is null");
+        }
+        if(declaredFields == null){
+            throw new RuntimeException("ClassFieldMapper declaredFields is null");
+        }
         this.clazz = clazz;
         this.declaredFields = declaredFields;
-        this.hasSuperClass = clazz.getSuperclass() != Objects.class;
+        this.hasSuperClass = (clazz.getSuperclass() != Objects.class);
     }
 
     /**
@@ -47,7 +49,11 @@ public class ClassFieldMapper {
      * @return
      */
     public List<Field> getDeclaredFieldList() {
-        return ArrayUtil.toList(getDeclaredFields());
+        if(getDeclaredFields()!=null && getDeclaredFields().length>0){
+            return ArrayUtil.toList(getDeclaredFields());
+        }
+        return Collections.emptyList();
+//        return ArrayUtil.toList(getDeclaredFields());
     }
 
     /**
@@ -74,18 +80,22 @@ public class ClassFieldMapper {
      * @return
      */
     public List<Field> getFullFieldList(){
+        List<Field> list =getDeclaredFieldList(); //ArrayUtil.toList(getDeclaredFields());
         if (!isHasSuperClass()){
-            return getDeclaredFieldList();
+            return list;
         }
-        List<Field> list = ArrayUtil.toList(getDeclaredFields());
         Class superClass = clazz.getSuperclass();
-        List<Field> superClassFullFieldList = ObjectReflectCacheHolder.get(superClass).getFullFieldList();
-        for (Field field : superClassFullFieldList) {
-            if (!containFieldName(field.getName())){
-                list.add(field);
+        while (superClass !=null && superClass!= Object.class){
+            Field[] superFields = ObjectUtil.getSelfFullFields(superClass);
+            for (Field superField : superFields) {
+                if (list.stream().filter(f->f.getName().equals(superField.getName())).count()==0) {
+                    list.add(superField);
+                }
             }
+            superClass = superClass.getSuperclass();
         }
         return list;
+
     }
 
     /**

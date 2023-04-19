@@ -1,20 +1,18 @@
 package cn.dev.core.object;
 
-import cn.dev.core.model.DataRecord;
-import cn.dev.core.model.Identity;
 import cn.dev.core.object.cache.ClassFieldMapper;
 import cn.dev.core.object.cache.ObjectReflectCacheHolder;
+import cn.dev.core.parallel.task.api.ITaskFunction;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.Arrays;
 
 public class ObjectUtil {
 
-
+    private static final Field[] EMPTY_FIELD_ARRAY = new Field[0];
     public static final boolean isNull(Object o){
         return o == null;
     }
@@ -28,17 +26,38 @@ public class ObjectUtil {
     }
 
     /**
+     * 是否是 某个类的子类
+     * @param clazz
+     * @param typeClass
+     * @return
+     */
+    public static boolean isChildTypeOfClass(Class clazz ,Class typeClass){
+        Class superClass = clazz.getSuperclass();
+        while ( superClass !=null && superClass != Object.class){
+            clazz = clazz.getSuperclass();
+            if(clazz == typeClass){
+                return true;
+            }
+            return isChildTypeOfClass(clazz,typeClass);
+        }
+        return false;
+    }
+
+    /**
      * 获取类的所有字段
      * @param clazz
      * @return
      */
-    public static final Field[] getFullFields(Class<?> clazz){
+    public static final Field[] getSelfFullFields(Class<?> clazz){
+        if (clazz ==null || clazz == Object.class) {
+            return EMPTY_FIELD_ARRAY ;
+        }
         if(ObjectReflectCacheHolder.contains(clazz)){
             return ObjectReflectCacheHolder.get(clazz).getDeclaredFields();
         }else {
             Field[] fields = clazz.getDeclaredFields();
             ObjectReflectCacheHolder.put(new ClassFieldMapper(clazz, fields));
-            return getFullFields(clazz);
+            return fields;
         }
     }
 
@@ -48,7 +67,40 @@ public class ObjectUtil {
      * @return
      */
     public static final Field[] getFullFieldsWithSuperClass(Class<?> clazz){
-        return ObjectReflectCacheHolder.get(clazz).getFullFields();
+        if(ObjectReflectCacheHolder.contains(clazz)) {
+            Field[] fullFields = ObjectReflectCacheHolder.get(clazz).getFullFields();
+            return fullFields;
+        }else {
+            getSelfFullFields(clazz);
+            return getFullFieldsWithSuperClass(clazz);
+        }
+    }
+
+
+
+
+//    public static void main(String[] args) throws InterruptedException {
+//
+//        for (int i =0 ;i<100 ;i ++ ) {
+//            long start = System.nanoTime();
+//            final Field[] fields = getFullFieldsWithSuperClass(BCC.class);
+//            long end = System.nanoTime();
+//            System.out.println("duration:" + (end - start));
+//            System.out.print(Arrays.stream(fields).count() + " find ");
+//        }
+//    }
+
+    /**
+     * field 定义的 字符串
+     * @param field
+     * @return
+     */
+    public static final String fieldDefinedString(Field field){
+        return new StringBuilder("")
+                .append(Modifier.toString(field.getModifiers())).append(" ")
+                .append(field.getType().getSimpleName()).append(" ")
+                .append(field.getName())
+                .toString();
     }
 
 
@@ -58,7 +110,7 @@ public class ObjectUtil {
      * @return
      */
     public static final boolean isContainsField(Class clazz){
-        return getFullFields(clazz).length > 0;
+        return getSelfFullFields(clazz).length > 0;
     }
 
 

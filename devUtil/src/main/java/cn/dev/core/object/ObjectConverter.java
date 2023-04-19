@@ -3,7 +3,6 @@ package cn.dev.core.object;
 import org.slf4j.Logger;
 
 import java.lang.reflect.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class ObjectConverter {
@@ -77,7 +76,7 @@ public class ObjectConverter {
     }
 
     public static Map<String,Object> objToMap(Object obj){
-        Field[] fullFields = ObjectUtil.getFullFields(obj.getClass());
+        Field[] fullFields = ObjectUtil.getSelfFullFields(obj.getClass());
         Map<String,Object> map = new HashMap();
         map.put("source_target_class_name" , obj.getClass().getName());
         for (Field f : fullFields) {
@@ -98,7 +97,7 @@ public class ObjectConverter {
 
     public static <T> T mapTpBean(Class<T> tClass,Map<String,Object> map) throws Exception {
         T t = (T) instanceObject(tClass,map);
-        Field[] fullFields = ObjectUtil.getFullFields(tClass);
+        Field[] fullFields = ObjectUtil.getSelfFullFields(tClass);
         for (Field f : fullFields) {
             if (map.containsKey(f.getName())) {
                 Object value = null;

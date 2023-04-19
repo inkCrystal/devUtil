@@ -4,6 +4,7 @@ import cn.dev.core.object.ObjectUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 对象反射缓存
@@ -17,16 +18,19 @@ public class ObjectReflectCacheHolder {
     }
 
     public static boolean contains(Class<?> clazz){
-        return cache.containsKey(clazz.getName());
+        if (Objects.nonNull(clazz)) {
+            return cache.containsKey(clazz.getName());
+        }
+        return false;
     }
 
     public static ClassFieldMapper get(Class<?> clazz){
-        if (contains(clazz)){
-            return cache.get(clazz.getName());
+        if (clazz!=null) {
+            if (contains(clazz)) {
+                return cache.get(clazz.getName());
+            }
         }
-        ClassFieldMapper mapper = new ClassFieldMapper(clazz, ObjectUtil.getFullFields(clazz));
-        put(mapper);
-        return mapper;
+        return null;
     }
 
 }
