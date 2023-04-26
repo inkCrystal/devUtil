@@ -1,4 +1,4 @@
-package cn.dev.utils;
+package cn.dev.supports;
 
 import lombok.Data;
 

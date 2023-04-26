@@ -58,7 +58,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static<T> T[] distinct(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         if (array.length == 0) {
             return array;
         }
@@ -74,7 +74,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static  <T> T[]  removeNull(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         if(isAllNull(array)){
             throw new RuntimeException("当前数组的值全部为NULL");
         }
@@ -102,7 +102,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static  <T> T[]  stored(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         if(isAllNull(array)){
             throw new RuntimeException("当前数组的值全部为NULL");
         }
@@ -119,7 +119,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static  <T> T[] distinctStored(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Class<T> targetClass = findTargetClass(array);
         Object[] objects = Arrays.stream(array).filter(Objects::nonNull).distinct().sorted().toArray();
         return ToTArray(objects,targetClass);
@@ -133,7 +133,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static  <T> T[]  storedDesc(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return reverse(stored(array));
     }
 
@@ -144,7 +144,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static  <T> T[]  distinctStoredDesc(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return reverse(distinctStored(array));
     }
 
@@ -155,7 +155,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] reverse(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         array = removeNull(array);
         for (int i = 0; i < array.length/2; i++) {
             T t = array[i];
@@ -174,8 +174,8 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] insertToIndex(T[] array , T t ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isNotMatch(index,(i)->{
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfMatch(index,(i)->{
            return i >array.length;
         });
         final Class<?> aClass = t.getClass();
@@ -200,7 +200,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] insertToFirst(T[] array , T t){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return insertToIndex(array, t, 0);
     }
 
@@ -216,20 +216,20 @@ public class ArrayUtil {
     }
 
     public static <T> T[] insert(T[] array , T t){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return insertToIndex(array,t,array.length);
     }
 
     public static <T> T[] removeByIndex(T[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         array[index] = null;
         return removeNull(array);
     }
 
     public static long[] removeByIndex(long[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         long[] na =new long[array.length -1];
         for (int i = 0; i < na.length; i++) {
             if(i<index){
@@ -241,8 +241,8 @@ public class ArrayUtil {
         return na;
     }
     public static int[] removeByIndex(int[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         int[] na =new int[array.length -1];
         for (int i = 0; i < na.length; i++) {
             if(i<index){
@@ -255,8 +255,8 @@ public class ArrayUtil {
     }
 
     public static double[] removeByIndex(double[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         double[] na =new double[array.length -1];
         for (int i = 0; i < na.length; i++) {
             if(i<index){
@@ -269,8 +269,8 @@ public class ArrayUtil {
     }
 
     public static float[] removeByIndex(float[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         float[] na =new float[array.length -1];
         for (int i = 0; i < na.length; i++) {
             if(i<index){
@@ -282,8 +282,8 @@ public class ArrayUtil {
         return na;
     }
     public static short[] removeByIndex(short[] array ,int index){
-        VerificationTool.isNotNull(array);
-        VerificationTool.isMatch(index, t->t<array.length&&index>=0);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfNotMatch(index, t->t<array.length&&index>=0);
         short[] na =new short[array.length -1];
         for (int i = 0; i < na.length; i++) {
             if(i<index){
@@ -296,7 +296,7 @@ public class ArrayUtil {
     }
 
     public static Integer[] ofBasicDataArray(int[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Integer[] arr = new Integer[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -305,7 +305,7 @@ public class ArrayUtil {
     }
 
     public static Float[] ofBasicDataArray(float[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Float[] arr = new Float[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -313,7 +313,7 @@ public class ArrayUtil {
         return arr;
     }
     public static Double[] ofBasicDataArray(double[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Double[] arr = new Double[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -323,7 +323,7 @@ public class ArrayUtil {
 
 
     public static Long[] ofBasicDataArray(long[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Long[] arr = new Long[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -332,7 +332,7 @@ public class ArrayUtil {
     }
 
     public static Short[] ofBasicDataArray(short[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Short[] arr = new Short[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -341,7 +341,7 @@ public class ArrayUtil {
     }
 
     public static Byte[] ofBasicDataArray(byte[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Byte[] arr = new Byte[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -350,7 +350,7 @@ public class ArrayUtil {
     }
 
     public static Character[] ofBasicDataArray(char[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         Character[] arr = new Character[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -359,7 +359,7 @@ public class ArrayUtil {
     }
 
     public static int[] toBasicDataArray(Integer[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         int[] arr =new int[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -368,7 +368,7 @@ public class ArrayUtil {
     }
 
     public static long[] toBasicDataArray(Long[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         long[] arr =new long[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -376,7 +376,7 @@ public class ArrayUtil {
         return arr;
     }
     public static double[] toBasicDataArray(Double[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         double[] arr =new double[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -385,7 +385,7 @@ public class ArrayUtil {
     }
 
     public static short[] toBasicDataArray(Short[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         short[] arr =new short[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -394,7 +394,7 @@ public class ArrayUtil {
     }
 
     public static char[] toBasicDataArray(Character[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         char[] arr =new char[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -404,7 +404,7 @@ public class ArrayUtil {
 
 
     public static byte[] toBasicDataArray(Byte[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         byte[] arr =new byte[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -419,7 +419,7 @@ public class ArrayUtil {
      * @return
      */
     public static float[] toBasicDataArray(Float[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         float[] arr =new float[array.length];
         for (int i = 0; i < array.length; i++) {
             arr[i] = array[i];
@@ -445,10 +445,10 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] mergeArrays(T[]... arrays){
-        VerificationTool.isNotNull(arrays);
+        VerificationTool.throwIfNull(arrays);
         int totalLength =  0 ;
         for (T[] arr : arrays) {
-            VerificationTool.isNotNull(arr);
+            VerificationTool.throwIfNull(arr);
             totalLength += arr.length;
         }
         T[] na =  genericsArray(totalLength,arrays);
@@ -485,7 +485,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] removeIfMatch(T[] array ,Predicate predicate){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         final Class<T> targetClass = findTargetClass(array);
         Object[] objects = Arrays.stream(array)
                 .filter(t -> !predicate.test(t)).toArray();
@@ -499,8 +499,8 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T extends Comparable> T findMinValue(T[] array){
-        VerificationTool.isNotNull(array);
-        VerificationTool.arrayIsNotEmpty(array);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfArrayIsEmpty(array);
         T min = null;
         for (T t : array) {
             if(min == null){
@@ -520,8 +520,8 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T extends Comparable> T findMaxValue(T[] array){
-        VerificationTool.isNotNull(array);
-        VerificationTool.arrayIsNotEmpty(array);
+        VerificationTool.throwIfNull(array);
+        VerificationTool.throwIfArrayIsEmpty(array);
         T max = null;
         for (T t : array) {
             if(max == null){
@@ -542,7 +542,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> long countByPredicate( T[] array,Predicate<T> predicate){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return Arrays.stream(array).filter(predicate).count();
     }
 
@@ -554,7 +554,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] subArrayByPredicate(T[] array ,Predicate<T> predicate){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         final Class<T> targetClass = findTargetClass(array);
         final Object[] objects = Arrays.stream(array).filter(predicate).toArray();
         return ToTArray(objects,targetClass);
@@ -570,7 +570,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> T[] changeValuesByFunction(T[] array , Function<T,T> function){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         for (int i = 0; i < array.length; i++) {
             array[i] = function.apply(array[i]);
         }
@@ -585,7 +585,7 @@ public class ArrayUtil {
      * @param <T>
      */
     public static <T> Optional<T> getAnyNotNull(T[] array){
-        VerificationTool.isNotNull(array);
+        VerificationTool.throwIfNull(array);
         return Arrays.stream(array)
                 .filter(Objects::nonNull)
                 .findAny();
@@ -603,7 +603,7 @@ public class ArrayUtil {
 
 
     public static boolean isContains(int[] arr ,int value){
-        VerificationTool.isNotNull(arr);
+        VerificationTool.throwIfNull(arr);
         for (int i : arr) {
             if(i == value){
                 return true;
@@ -614,7 +614,7 @@ public class ArrayUtil {
 
 
     public static boolean isContains(long[] arr ,long value){
-        VerificationTool.isNotNull(arr);
+        VerificationTool.throwIfNull(arr);
         for (var i : arr) {
             if(i == value){
                 return true;
@@ -624,7 +624,7 @@ public class ArrayUtil {
     }
 
     public static boolean isContains(short[] arr ,short value){
-        VerificationTool.isNotNull(arr);
+        VerificationTool.throwIfNull(arr);
         for (var i : arr) {
             if(i == value){
                 return true;
@@ -634,7 +634,7 @@ public class ArrayUtil {
     }
 
     public static boolean isContains(double[] arr ,double value){
-        VerificationTool.isNotNull(arr);
+        VerificationTool.throwIfNull(arr);
         for (var i : arr) {
             if(i == value){
                 return true;
@@ -643,7 +643,7 @@ public class ArrayUtil {
         return false;
     }
     public static boolean isContains(float[] arr ,float value){
-        VerificationTool.isNotNull(arr);
+        VerificationTool.throwIfNull(arr);
         for (var i : arr) {
             if(i == value){
                 return true;
@@ -675,7 +675,7 @@ public class ArrayUtil {
     }
 
     public static <T> List<T> toList(T[] array){
-        VerificationTool.isNotNull(array,"原始数组为NULL");
+        VerificationTool.throwIfNull(array,"原始数组为NULL");
         List<T> list =new ArrayList<>();
         for (T t : array) {
             list.add(t);
@@ -684,8 +684,8 @@ public class ArrayUtil {
     }
 
     public static <T> T[] fromList(List<T> list){
-        VerificationTool.isNotNull(list,"原始列表为NULL");
-        VerificationTool.collectionIsNotEmpty(list,"原始列表size为0");
+        VerificationTool.throwIfNull(list,"原始列表为NULL");
+        VerificationTool.throwIfCollectionIsEmpty(list,"原始列表size为0");
         T[] array = (T[]) genericsArray(list.get(0).getClass(), list.size());
         return list.toArray(array);
     }

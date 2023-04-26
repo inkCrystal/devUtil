@@ -67,7 +67,7 @@ public class ScheduledConfig {
      */
     public boolean enableConfig(ITaskFunction taskFunction) throws ScheduleConfigException{
         this.tester().safeCheck();
-        VerificationTool.isNotNull(taskFunction);
+        VerificationTool.throwIfNull(taskFunction);
         this.scheduledTask = taskFunction;
         this.ableState =true;
         return true;
@@ -257,22 +257,22 @@ public class ScheduledConfig {
     /** setter 。   ---by jason @ 2023/4/4 11:15 */
 
     protected void setMothAndDayConfig(long mothAndDayConfig) {
-        VerificationTool.isFalse(ableState,"配置已经启用，无法修改配置");
+        VerificationTool.throwIfTrue(ableState,"配置已经启用，无法修改配置");
         this.mothAndDayConfig = mothAndDayConfig;
     }
 
     protected void setHourConfig(long hourConfig) {
-        VerificationTool.isFalse(ableState,"配置已经启用，无法修改配置");
+        VerificationTool.throwIfTrue(ableState,"配置已经启用，无法修改配置");
         this.hourConfig = hourConfig;
     }
 
     protected void setMinuteConfig(long minuteConfig) {
-        VerificationTool.isFalse(ableState,"配置已经启用，无法修改配置");
+        VerificationTool.throwIfTrue(ableState,"配置已经启用，无法修改配置");
         this.minuteConfig = minuteConfig;
     }
 
     protected void setSecondConfig(int secondConfig) {
-        VerificationTool.isFalse(ableState,"配置已经启用，无法修改配置");
+        VerificationTool.throwIfTrue(ableState,"配置已经启用，无法修改配置");
         this.secondConfig = secondConfig;
     }
 

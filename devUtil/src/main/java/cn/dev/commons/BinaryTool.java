@@ -43,7 +43,7 @@ public class BinaryTool {
 
 
     public static long ofBinaryString(String str){
-        VerificationTool.isMatch(str,s -> {
+        VerificationTool.throwIfNotMatch(str, s -> {
             for (char c : s.toCharArray()) {
                 if(c !='0' &&  c!='1'){
                     return false;

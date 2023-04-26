@@ -1,9 +1,9 @@
-package cn.dev.utils.supports.dataApi.query.filter;
+package cn.dev.supports.spring.dataApi.query.filter;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class CompleteFilter {
+public class AvailableFilter {
 
     private final String filterQuery ;
 
@@ -11,7 +11,7 @@ public class CompleteFilter {
 
     private String jsonString ;
 
-    protected CompleteFilter(String filterQuery, List<Serializable> valueList) {
+    protected AvailableFilter(String filterQuery, List<Serializable> valueList) {
         this.filterQuery = filterQuery;
         this.valueList = valueList;
     }

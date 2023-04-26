@@ -1,4 +1,4 @@
-package cn.dev.utils.supports.dataApi;
+package cn.dev.supports.spring.dataApi;
 
 import java.util.List;
 

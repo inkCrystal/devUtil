@@ -13,25 +13,25 @@ import java.util.function.Predicate;
 public class VerificationTool {
     /**************************************************************************************/
 
-    public static final void isNotNull(Object o ,String errorMessage ){
+    public static void throwIfNull(Object o , String errorMessage ){
         VerificationHelper.isNotNull(o).throwIfNotSuccess(errorMessage);
     }
 
-    public static final void isNotNull(Object o  ){
-        isNotNull(o,"目标对象为NULL");
+    public static void throwIfNull(Object o  ){
+        throwIfNull(o,"目标对象为NULL");
     }
 
-    public static final void isTrue(Boolean b){
-        isTrue(b,"目标结果不是并非预期的 TRUE" );
+    public static void throwIfFalse(Boolean b){
+        throwIfFalse(b,"目标结果不是并非预期的 TRUE" );
     }
-    public static final void isTrue(Boolean b,String errMsg){
+    public static void throwIfFalse(Boolean b, String errMsg){
         VerificationHelper.isTrue(b).throwIfNotSuccess(errMsg);
     }
 
-    public static final void isFalse(Boolean b){
-        isFalse(b,"目标结果不是并非预期的 FALSE");
+    public static void throwIfTrue(Boolean b){
+        throwIfTrue(b,"目标结果不是并非预期的 FALSE");
     }
-    public static final void isFalse(Boolean b,String errMsg){
+    public static void throwIfTrue(Boolean b, String errMsg){
         VerificationHelper.isFalse(b).throwIfNotSuccess(errMsg);
     }
 
@@ -40,57 +40,73 @@ public class VerificationTool {
      * @param o
      * @return
      */
-    public static final void isArrayAllNotNull(Object[] o){
-        isArrayAllNotNull(o,"数组中包含有NULL");
+    public static void throwIfArrayValueContainsNull(Object[] o){
+        throwIfArrayValueContainsNull(o,"数组中包含有NULL");
     }
-    public static final void isArrayAllNotNull(Object[] o,String errMsg){
+    public static void throwIfArrayValueContainsNull(Object[] o, String errMsg){
         VerificationHelper.isArrayAllNotNull(o).throwIfNotSuccess(errMsg);
     }
 
-    public static final <C extends Collection> void collectionIsNotEmpty(C col,String errMsg){
+    public static <C extends Collection> void throwIfCollectionIsEmpty(C col, String errMsg){
         VerificationHelper.collectionIsNotEmpty(col).throwIfNotSuccess(errMsg);
 
     }
-    public static final <C extends Collection> void collectionIsNotEmpty(C col){
-        collectionIsNotEmpty(col,"Collection is Empty");
+    public static <C extends Collection> void throwIfCollectionIsEmpty(C col){
+        throwIfCollectionIsEmpty(col,"Collection is Empty");
     }
 
-    public static final <T> void arrayIsNotEmpty(T[] arr,String errMsg){
+    public static <T> void throwIfArrayIsEmpty(T[] arr, String errMsg){
         VerificationHelper.arrayIsNotEmpty(arr).throwIfNotSuccess(errMsg);
     }
 
-    public static final <T> void arrayIsNotEmpty(T[] arr){
-        arrayIsNotEmpty(arr,"Array is Empty ");
+    public static <T> void throwIfArrayIsEmpty(T[] arr){
+        throwIfArrayIsEmpty(arr,"Array is Empty ");
+    }
+
+    /**
+     * 检查数组长度是否 间于 min and max 之间
+     * @param arr
+     * @param min
+     * @param max
+     * @param <T>
+     */
+    public static <T> void throwIfArrayLengthIsNotBetweenAnd(T[] arr, int min, int max){
+        throwIfArrayLengthIsNotBetweenAnd( arr, min, max,"Array length is not between "+min+" and "+max);
+    }
+
+    public static <T> void throwIfArrayLengthIsNotBetweenAnd(T[] arr, int min, int max, String errMsg){
+        throwIfNull(arr,"数组不能为空");
+        throwIfNotMatch(arr, a -> a.length >= min && a.length <= max,errMsg);
     }
 
 
-    public static final <T extends Map> void mapContainsKey(T map,final String key,String errMsg){
+    public static void throwIfMapNotContainsKey(Map<String,?> map, String key, String errMsg){
         VerificationHelper.mapContainsKey(map,key).throwIfNotSuccess(errMsg);
     }
 
-    public static final <T extends Map> void mapContainsKey(T map,final String key){
-        mapContainsKey(map,"map not contains "+ key);
+    public static void throwIfMapNotContainsKey(Map<String,?> map, String key){
+        throwIfMapNotContainsKey(map,key,"map not contains "+ key);
     }
 
-    public static final <T extends Map> void mapIsNotEmpty(T map){
-        mapIsNotEmpty(map,"MAP IS EMPTY");
+    public static void throwIfMapIsEmpty(Map<?,?> map){
+        throwIfMapIsEmpty(map,"MAP IS EMPTY");
     }
-    public static final <T extends Map> void mapIsNotEmpty(T map,String errMsg){
+    public static void throwIfMapIsEmpty(Map<?,?> map, String errMsg){
         VerificationHelper.mapIsNotEmpty(map).throwIfNotSuccess(errMsg);
     }
 
-    public static final <T> void isNotMatch(T t,Predicate<T> predicate){
-        isNotMatch(t,predicate,null);
+    public static <T> void throwIfMatch(T t, Predicate<T> predicate){
+        throwIfMatch(t,predicate,null);
     }
-    public static final <T> void isNotMatch(T t,Predicate<T> predicate,String errMsg){
+    public static <T> void throwIfMatch(T t, Predicate<T> predicate, String errMsg){
         VerificationHelper.isNotMatch(t,predicate).throwIfNotSuccess(errMsg);
     }
 
-    public static final <T> void isMatch(T t,Predicate<T> predicate){
-        isMatch(t,predicate,null);
+    public static <T> void throwIfNotMatch(T t, Predicate<T> predicate){
+        throwIfNotMatch(t,predicate,null);
     }
 
-    public static final <T> void isMatch(T t,Predicate<T> predicate,String errMsg){
+    public static <T> void throwIfNotMatch(T t, Predicate<T> predicate, String errMsg){
         VerificationHelper.isMatch(t,predicate).throwIfNotSuccess(errMsg);
     }
 

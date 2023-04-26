@@ -1,4 +1,4 @@
-package cn.dev.utils.supports.dataApi;
+package cn.dev.supports.spring.dataApi;
 
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Mono;

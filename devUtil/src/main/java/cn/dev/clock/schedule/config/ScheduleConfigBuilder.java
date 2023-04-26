@@ -21,7 +21,7 @@ public class ScheduleConfigBuilder {
 
 
     public static ScheduledConfig configSetMonthConfigPredicate(ScheduledConfig config, Predicate<Integer> predicate){
-        VerificationTool.isNotNull(config,"配置对象不能为空");
+        VerificationTool.throwIfNull(config,"配置对象不能为空");
         config.setMothAndDayConfig(
                 ScheduleConfigBuilder.calSetValue(config.getMothAndDayConfig(),0,1,12,predicate)
         );
@@ -29,7 +29,7 @@ public class ScheduleConfigBuilder {
     }
 
     public static ScheduledConfig configSetDayConfigPredicate(ScheduledConfig config, Predicate<Integer> predicate){
-        VerificationTool.isNotNull(config,"配置对象不能为空");
+        VerificationTool.throwIfNull(config,"配置对象不能为空");
         config.setMothAndDayConfig(
                 ScheduleConfigBuilder.calSetValue(config.getMothAndDayConfig(),12,1,31,predicate)
         );
@@ -37,7 +37,7 @@ public class ScheduleConfigBuilder {
     }
 
     public static ScheduledConfig configSetHourConfigPredicate(ScheduledConfig config, Predicate<Integer> predicate){
-        VerificationTool.isNotNull(config,"配置对象不能为空");
+        VerificationTool.throwIfNull(config,"配置对象不能为空");
         config.setHourConfig(
                 ScheduleConfigBuilder.calSetValue(config.getHourConfig(),0,0,23,predicate)
         );
@@ -45,7 +45,7 @@ public class ScheduleConfigBuilder {
     }
 
     public static ScheduledConfig configSetMinuteConfigPredicate(ScheduledConfig config, Predicate<Integer> predicate){
-        VerificationTool.isNotNull(config,"配置对象不能为空");
+        VerificationTool.throwIfNull(config,"配置对象不能为空");
         config.setMinuteConfig(
                 ScheduleConfigBuilder.calSetValue(config.getMinuteConfig(),0,0,59,predicate)
         );
@@ -53,7 +53,7 @@ public class ScheduleConfigBuilder {
     }
 
     public static ScheduledConfig configSetSecondConfigPredicate(ScheduledConfig config, int secondConfig){
-        VerificationTool.isNotNull(config,"配置对象不能为空");
+        VerificationTool.throwIfNull(config,"配置对象不能为空");
         config.setSecondConfig( secondConfig) ;
         return config;
     }

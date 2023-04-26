@@ -1,4 +1,4 @@
-package cn.dev.utils.supports.dataApi.query;
+package cn.dev.supports.spring.dataApi.query;
 
 public enum ValueType {
     VALUE ,

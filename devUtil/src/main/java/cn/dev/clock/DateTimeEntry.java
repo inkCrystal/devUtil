@@ -70,7 +70,7 @@ public class DateTimeEntry implements Serializable {
      * @param month
      */
     public void setMonth(int month) {
-        VerificationTool.isMatch(month,t->t<13&&t>0,"月设置错误");
+        VerificationTool.throwIfNotMatch(month, t->t<13&&t>0,"月设置错误");
         this.month = month;
     }
 
@@ -80,7 +80,7 @@ public class DateTimeEntry implements Serializable {
      */
     public void setDayOfMonth(int dayOfMonth) {
         final int maxValueForDayOfMonth = DateTimeUtil.maxValueForDayOfMonth(this.year, this.month);
-        VerificationTool.isMatch(dayOfMonth,t->t<maxValueForDayOfMonth,"日设置错误");
+        VerificationTool.throwIfNotMatch(dayOfMonth, t->t<maxValueForDayOfMonth,"日设置错误");
         this.dayOfMonth = dayOfMonth;
     }
 
@@ -89,7 +89,7 @@ public class DateTimeEntry implements Serializable {
      * @param hour
      */
     public void setHour(int hour) {
-        VerificationTool.isMatch(hour,t->t<24&&t>=0,"小时设置错误");
+        VerificationTool.throwIfNotMatch(hour, t->t<24&&t>=0,"小时设置错误");
         this.hour = hour;
     }
 
@@ -98,7 +98,7 @@ public class DateTimeEntry implements Serializable {
      * @param minute
      */
     public void setMinute(int minute) {
-        VerificationTool.isMatch(minute,t->t<60&&t>=0,"分设置错误");
+        VerificationTool.throwIfNotMatch(minute, t->t<60&&t>=0,"分设置错误");
         this.minute = minute;
     }
 
@@ -107,7 +107,7 @@ public class DateTimeEntry implements Serializable {
      * @param second
      */
     public void setSecond(int second) {
-        VerificationTool.isMatch(second,t->t<60&&t>=0,"秒设置错误");
+        VerificationTool.throwIfNotMatch(second, t->t<60&&t>=0,"秒设置错误");
         this.second = second;
     }
 
@@ -193,7 +193,7 @@ public class DateTimeEntry implements Serializable {
      * @return
      */
     public DateTimeEntry getNextTimeWhileSecondIs(int targetSecond){
-        VerificationTool.isMatch(targetSecond,t->t<60&&t>=0,"目标秒（"+targetSecond+"）不可达到");
+        VerificationTool.throwIfNotMatch(targetSecond, t->t<60&&t>=0,"目标秒（"+targetSecond+"）不可达到");
         do{
             nextSecond();
             if(this.second == targetSecond ){
@@ -208,7 +208,7 @@ public class DateTimeEntry implements Serializable {
      * @return
      */
     public DateTimeEntry getNextTimeWhileMinuteIs(int targetMinute){
-        VerificationTool.isMatch(targetMinute,t->t<60&&t>=0,"目标分（"+targetMinute+"）不可达到");
+        VerificationTool.throwIfNotMatch(targetMinute, t->t<60&&t>=0,"目标分（"+targetMinute+"）不可达到");
         do{
             nextMinute();
             if(this.minute == targetMinute ){
@@ -222,7 +222,7 @@ public class DateTimeEntry implements Serializable {
      * @return
      */
     public DateTimeEntry getNextTimeWhileHourIs(int targetHour){
-        VerificationTool.isMatch(targetHour,t->t<24&&t>=0,"目标小时（"+targetHour+"）不可达到");
+        VerificationTool.throwIfNotMatch(targetHour, t->t<24&&t>=0,"目标小时（"+targetHour+"）不可达到");
         do{
             nextHour();
             if(this.hour == targetHour ){
@@ -237,7 +237,7 @@ public class DateTimeEntry implements Serializable {
      * @return
      */
     public DateTimeEntry getNextTimeWhileDayOfMonthIs(int targetDayOfMonth){
-        VerificationTool.isMatch(targetDayOfMonth,t->t<32&&t>=1,"目标日（"+targetDayOfMonth+"）不可达到");
+        VerificationTool.throwIfNotMatch(targetDayOfMonth, t->t<32&&t>=1,"目标日（"+targetDayOfMonth+"）不可达到");
         do{
             nextDay();
             if(this.dayOfMonth == targetDayOfMonth ){
@@ -252,7 +252,7 @@ public class DateTimeEntry implements Serializable {
      * @return
      */
     public DateTimeEntry getNextTimeWhileMonthIs(int targetMonth){
-        VerificationTool.isMatch(targetMonth,t->t<13&&t>=1,"目标月（"+targetMonth+"）不可达到");
+        VerificationTool.throwIfNotMatch(targetMonth, t->t<13&&t>=1,"目标月（"+targetMonth+"）不可达到");
         do{
             nextMonth();
             if(this.month == targetMonth ){

@@ -1,4 +1,4 @@
-package cn.dev.utils.supports.dataApi.query.key;
+package cn.dev.supports.spring.dataApi.query.key;
 
 public class SelectKeys {
 
