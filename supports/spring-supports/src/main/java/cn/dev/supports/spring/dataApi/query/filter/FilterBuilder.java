@@ -7,7 +7,11 @@ import java.io.Serializable;
 
 public class FilterBuilder {
 
-    protected static final FilterBuilder Builder = new FilterBuilder();
+    private static final FilterBuilder Builder = new FilterBuilder();
+
+    public static FilterBuilder getBuilder(){
+        return new FilterBuilder() ;
+    }
 
     protected static final OrBuilder Or = OrBuilder.OrBuilder;
 

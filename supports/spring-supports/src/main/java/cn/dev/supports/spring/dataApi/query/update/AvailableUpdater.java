@@ -19,4 +19,8 @@ public class AvailableUpdater {
     public String getUpdateQuery() {
         return updateQuery;
     }
+
+    public static void main(String[] args) {
+
+    }
 }

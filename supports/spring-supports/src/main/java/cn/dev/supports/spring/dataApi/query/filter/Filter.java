@@ -50,7 +50,7 @@ public class Filter implements Serializable {
     private boolean keyParam = false;
 
     public static FilterBuilder builder(){
-        return FilterBuilder.Builder;
+        return FilterBuilder.getBuilder();
     }
 
     public static FilterBuilder.OrBuilder orBuilder(){
