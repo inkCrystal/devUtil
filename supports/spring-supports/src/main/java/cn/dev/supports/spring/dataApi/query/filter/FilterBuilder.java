@@ -1,216 +1,228 @@
 package cn.dev.supports.spring.dataApi.query.filter;
 
+import cn.dev.commons.verification.AssertTool;
+import cn.dev.core.object.ObjectUtil;
+import cn.dev.supports.spring.dataApi.DataModel;
 import cn.dev.supports.spring.dataApi.query.OpEnum;
-import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
+import java.util.*;
 
-public class FilterBuilder {
+/**
+ * 用于构建查询的filter链路对象
+ * @param <T>
+ */
+public class FilterBuilder<T extends DataModel> {
+    private Class<T> modelType ;
+    private Node firstEntry ;
+    private Node currentEntry  ;
 
-    private static final FilterBuilder Builder = new FilterBuilder();
+    // 准备拼接Or 标记
+    private boolean prepareOr = false;
 
-    public static FilterBuilder getBuilder(){
-        return new FilterBuilder() ;
+    private FilterBuilder(Class<?> modelType) {
+        AssertTool.throwIfFalse(ObjectUtil.isChildTypeOfClass(modelType, DataModel.class),"当前的modelType并不是DataModel的子类");
+        this.modelType = (Class<T>) modelType;
     }
 
-    protected static final OrBuilder Or = OrBuilder.OrBuilder;
+    public static <T extends DataModel> FilterBuilder<T> getBuilder(Class<?> modelType){
+        return new FilterBuilder<T>(modelType);
+    }
 
-    private FilterBuilder(){}
+    /**
+     * 转换成 AvilableFilter
+     * @return
+     */
+    public AvailableFilter toAvailableFilter(){
+        AssertTool.throwIfFalse(prepareAvailable(),"当前的filter并不可用");
+        StringBuilder queryBuilder =new StringBuilder(" WHERE");
+        List<Serializable> valueList = new ArrayList<>();
+        Node node = this.firstEntry;
+        availableFilterNodeAppend(node,queryBuilder,valueList);
+        return new AvailableFilter(queryBuilder.toString(),valueList);
+    }
 
-    static class OrBuilder {
-        protected static final OrBuilder OrBuilder = new OrBuilder();
-        private OrBuilder(){}
-        public Mono<Filter> whereEqual(String key, Serializable value){
-            return Mono.just(Builder.whereEqual(key, value));
+
+    private void availableFilterNodeAppend(Node node,StringBuilder queryBuilder , List<Serializable> valueList ){
+        if(node.preNode().isPresent()){
+            queryBuilder.append(" AND");
         }
-
-        public Mono<Filter> whereNotEqual(String key, Serializable value){
-            return Mono.just(Builder.whereNotEqual(key, value));
+        queryBuilder.append(" ").append(node.toQueryPart());
+        Optional<Serializable[]> paramsOpt = node.paramsValue();
+        if (paramsOpt.isPresent()) {
+            Serializable[] params = paramsOpt.get();
+            Collections.addAll(valueList, params);
         }
-
-        public Mono<Filter> whereIn(String key, Serializable... values){
-            return Mono.just(Builder.whereIn(key, values));
+        if(node.innerNode().isPresent()){
+            queryBuilder.append(" OR(");
+            this.availableFilterNodeAppend(node.innerNode().get(),queryBuilder,valueList);
+            // 拼接 or 逻辑
+            queryBuilder.append(")");
         }
-
-        public Mono<Filter> whereNotIn(String key, Serializable... values){
-            return Mono.just(Builder.whereNotIn(key, values));
+        if(node.nextNode().isPresent()){
+            this.availableFilterNodeAppend(node.nextNode().get(),queryBuilder,valueList);
         }
+    }
 
-        public Mono<Filter> whereLike(String key, String value){
-            return Mono.just(Builder.whereLike(key, value));
+
+    /**
+     * 构建 aviailableFilter 的 检查
+     * @return
+     */
+    private boolean prepareAvailable(){
+        return modelType != null && firstEntry!=null;
+    }
+
+    private void appendEntry(Node t){
+        if(firstEntry == null){
+            firstEntry = t;
+            currentEntry = t;
+        }else{
+            if(prepareOr){
+                currentEntry = currentEntry.appendOrNoteEntry(t);
+            }else {
+                currentEntry = currentEntry.appendNext(t);
+            }
         }
+        prepareOr = false;
+    }
 
-        public Mono<Filter> whereNotLike(String key, String value){
-            return Mono.just(Builder.whereNotLike(key, value));
-        }
+    public Class<T> getModelType() {
+        return modelType;
+    }
 
-        public Mono<Filter> whereGreaterThan(String key, Number value){
-            return Mono.just(Builder.whereGreaterThan(key, value));
-        }
+    public Node getCurrentEntry() {
+        return currentEntry;
+    }
 
-        public Mono<Filter> whereGreaterThanOrEqual(String key, Number value){
-            return Mono.just(Builder.whereGreaterThanOrEqual(key, value));
-        }
+    public Node getFirstEntry() {
+        return firstEntry;
+    }
 
-        public Mono<Filter> whereLessThan(String key, Number value){
-            return Mono.just(Builder.whereLessThan(key, value));
-        }
+    /**
+     * 增加一个Or逻辑,只允许调用一次 ！
+     * @return
+     */
+    public FilterBuilder<T> thenOR(){
+        AssertTool.throwIfTrue(this.prepareOr,"已经可以增加OR逻辑，请勿重复调用");
+        this.prepareOr = true;
+        return this;
+    }
 
-        public Mono<Filter> whereLessThanOrEqual(String key, Number value){
-            return Mono.just(Builder.whereLessThanOrEqual(key, value));
-        }
-
-        public Mono<Filter> whereBetweenAnd(String key, Number min, Number max){
-            return Mono.just(Builder.whereBetweenAnd(key, min, max));
-        }
-
-        public Mono<Filter> whereNotBetween(String key, Number min, Number max){
-            return Mono.just(Builder.whereNotBetweenAnd(key, min, max));
-        }
-
-        public Mono<Filter> whereIsNull(String key){
-            return Mono.just(Builder.whereIsNull(key));
-        }
-
-        public Mono<Filter> whereIsNotNull(String key){
-            return Mono.just(Builder.whereIsNotNull(key));
-        }
-
-        public Mono<Filter> whereLessThanKey(String key, String key2){
-            return Mono.just(Builder.whereLessThanKey(key, key2));
-        }
-
-        public Mono<Filter> whereLessThanOrEqualKey(String key, String key2){
-            return Mono.just(Builder.whereLessThanOrEqualKey(key, key2));
-        }
-
-        public Mono<Filter> whereGreaterThanKey(String key, String key2){
-            return Mono.just(Builder.whereGreaterThanKey(key, key2));
-        }
-
-        public Mono<Filter> whereGreaterThanOrEqualKey(String key, String key2){
-            return Mono.just(Builder.whereGreaterThanOrEqualKey(key, key2));
-        }
+    /**
+     * 完成一个or 逻辑
+     * @return
+     */
+    public FilterBuilder<T> breakOR(){
+        Optional<Node> outerNodeOpt = this.currentEntry.outerNode();
+        AssertTool.throwIfFalse(outerNodeOpt.isPresent(),"当前节点并不在开始的OR逻辑里");
+        this.currentEntry = currentEntry.outerNode().get();
+        return this;
+    }
 
 
+    public FilterBuilder<T> thenEqual(String key, Serializable value){
+        this.appendEntry(new Node(key, OpEnum.EQUAL, false, value));
+        return this;
+    }
 
+    public FilterBuilder<T> thenNotEqual(String key, Serializable value){
+        this.appendEntry(new Node(key, OpEnum.NOT_EQUAL, false, value));
+        return this;
+    }
 
+    public FilterBuilder<T> thenIn(String key, Serializable... values){
+        this.appendEntry(new Node(key, OpEnum.IN, false, values));
+        return this;
+    }
+
+    public FilterBuilder<T> thenNotIn(String key, Serializable... values){
+        this.appendEntry(new Node(key, OpEnum.NOT_IN, false, values));
+        return this;
+    }
+
+    public FilterBuilder<T> thenLike(String key, String value){
+        this.appendEntry(new Node(key, OpEnum.LIKE, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenNotLike(String key, String value){
+        this.appendEntry(new Node(key, OpEnum.NOT_LIKE, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenGreaterThan(String key, Number value){
+        this.appendEntry(new Node(key, OpEnum.GREATER_THAN, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenGreaterThanOrEqual(String key, Number value){
+        this.appendEntry(new Node(key, OpEnum.GREATER_THAN_OR_EQUAL, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenLessThan(String key, Number value){
+        this.appendEntry(new Node(key, OpEnum.LESS_THAN, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenLessThanOrEqual(String key, Number value){
+        this.appendEntry(new Node(key, OpEnum.LESS_THAN_OR_EQUAL, false, value));
+        return this;
+    }
+
+    public FilterBuilder<T> thenBetweenAnd(String key, Serializable value1, Serializable value2){
+        this.appendEntry(new Node(key, OpEnum.BETWEEN_AND, false, value1, value2));
+        return this;
+    }
+
+    public FilterBuilder<T> thenIsNull(String key){
+        this.appendEntry(new Node(key, OpEnum.IS_NULL, false));
+        return this;
+    }
+
+    public FilterBuilder<T> thenIsNotNull(String key){
+        this.appendEntry(new Node(key, OpEnum.IS_NOT_NULL, false));
+        return this;
+    }
+
+    public FilterBuilder<T> thenEqualKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.EQUAL, true, targetKey));
+        return this;
+    }
+
+    public FilterBuilder<T> thenNotEqualKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.NOT_EQUAL, true, targetKey));
+        return this;
+    }
+
+    public FilterBuilder<T> thenGreaterThanKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.GREATER_THAN, true, targetKey));
+        return this;
+    }
+
+    public FilterBuilder<T> thenGreaterThanOrEqualKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.GREATER_THAN_OR_EQUAL, true, targetKey));
+        return this;
+    }
+
+    public FilterBuilder<T> thenLessThanKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.LESS_THAN, true, targetKey));
+        return this;
+    }
+
+    public FilterBuilder<T> thenLessThanOrEqualKey(String key, String targetKey){
+        this.appendEntry(new Node(key, OpEnum.LESS_THAN_OR_EQUAL, true, targetKey));
+        return this;
     }
 
 
 
 
-    // 初始构建 链路中的 第一个 filter
-    public Filter whereEqual(String key, Serializable value){
-        return Filter.build(key, OpEnum.EQUAL, value);
-    }
-
-    public Filter whereNotEqual(String key, Serializable value){
-        return Filter.build(key, OpEnum.NOT_EQUAL, value);
-    }
-
-    public Filter whereIn(String key, Serializable... values){
-        if(values == null || values.length == 0){
-            throw new IllegalArgumentException("values length must > 0");
-        }
-        if(values.length == 1){
-            return whereEqual(key, values[0]);
-        }
-        return Filter.build(key, OpEnum.IN, values);
-    }
-
-    public Filter whereNotIn(String key, Serializable... values){
-        if(values == null || values.length == 0){
-            throw new IllegalArgumentException("values length must > 0");
-        }
-        if(values.length == 1){
-            return whereNotEqual(key, values[0]);
-        }
-        return Filter.build(key, OpEnum.NOT_IN, values);
-    }
-
-    public Filter whereLike(String key, String value){
-        return Filter.build(key, OpEnum.LIKE, value);
-    }
-
-    public Filter whereNotLike(String key, String value){
-        return Filter.build(key, OpEnum.NOT_LIKE, value);
-    }
-
-    public Filter whereLessThan(String key, Number value){
-        return Filter.build(key, OpEnum.LESS_THAN, value);
-    }
-
-    public Filter whereLessThanOrEqual(String key, Number value){
-        return Filter.build(key, OpEnum.LESS_THAN_OR_EQUAL, value);
-    }
-
-
-
-    public Filter whereGreaterThan(String key, Number value){
-        return Filter.build(key, OpEnum.GREATER_THAN, value);
-    }
-
-    public Filter whereGreaterThanOrEqual(String key, Number value){
-        return Filter.build(key, OpEnum.GREATER_THAN_OR_EQUAL, value);
-    }
-
-    @Deprecated
-    public Filter whereIsNull(String key){
-        return Filter.build(key, OpEnum.IS_NULL);
-    }
-
-    @Deprecated
-    public Filter whereIsNotNull(String key){
-        return Filter.build(key, OpEnum.IS_NOT_NULL);
-    }
-
-    public Filter whereBetweenAnd(String key, Serializable value1, Serializable value2){
-        return Filter.build(key, OpEnum.BETWEEN_AND, value1, value2);
-    }
-
-    public Filter whereNotBetweenAnd(String key, Serializable value1, Serializable value2){
-        return Filter.build(key, OpEnum.NOT_BETWEEN_AND, value1, value2);
-    }
-
-    @Deprecated
-    public Filter whereEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.EQUAL, key2)
-                .markParamIsKey();
-    }
-
-    @Deprecated
-    public Filter whereNotEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.NOT_EQUAL,key2)
-                .markParamIsKey();
-    }
-
-
-    public Filter whereLessThanKey(String key , String key2){
-        return Filter.build(key, OpEnum.LESS_THAN,key2)
-                .markParamIsKey();
-    }
-
-    public Filter whereLessThanOrEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.LESS_THAN_OR_EQUAL,key2)
-                .markParamIsKey();
-    }
-
-    public Filter whereGreaterThanKey(String key , String key2){
-        return Filter.build(key, OpEnum.GREATER_THAN,key2)
-                .markParamIsKey();
-    }
-
-    public Filter whereGreaterThanOrEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.GREATER_THAN_OR_EQUAL,key2)
-                .markParamIsKey();
-    }
-
-    @Deprecated
-    public Filter whereBetweenAndKey(String key , String keyFrom, String keyTo){
-        return Filter.build(key, OpEnum.BETWEEN_AND,keyFrom,keyTo)
-                .markParamIsKey();
-    }
 
 
 }
+
+/**
+ * filter 链路 节点 对象
+ */

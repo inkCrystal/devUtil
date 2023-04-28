@@ -7,7 +7,7 @@ class SelectFilterBuilderTest {
 
     @Test
     void toAvailableFilter() {
-        final AvailableFilter<DataModel> availableFilter = SelectFilterBuilder.getBuilder(DataModel.class)
+        final AvailableFilter availableFilter = FilterBuilder.getBuilder(DataModel.class)
                 .thenEqual("id", 123)
                 .thenBetweenAnd("score", 1, 100)
                 .thenIn("sex", 1, 2, 3)
@@ -15,8 +15,8 @@ class SelectFilterBuilderTest {
                     .thenOR().thenEqualKey("name", "name")
                 .breakOR()
                 .breakOR()
-                .thenGraterThan("age", 18)
-                .thenGraterThanKey("money","minMoney")
+                .thenGreaterThan("age", 18)
+                .thenGreaterThanKey("money","minMoney")
                 .toAvailableFilter();
 
         System.out.println(availableFilter.getFilterQuery() + " <<< \n " + availableFilter.getValueList().size());

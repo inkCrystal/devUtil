@@ -1,8 +1,7 @@
 package cn.dev.supports.spring.dataApi.query;
 
 import cn.dev.commons.verification.VerificationTool;
-import cn.dev.core.object.ProtostuffUtil;
-import cn.dev.supports.spring.dataApi.query.filter.Filter;
+import cn.dev.supports.spring.dataApi.query.filter._Filter;
 
 import java.io.Serializable;
 
@@ -92,7 +91,7 @@ public enum OpEnum {
      * @param filter
      * @return
      */
-    public static String toFilterQuery(Filter filter){
+    public static String toFilterQuery(_Filter filter){
         StringBuilder sb =new StringBuilder(" ");
         boolean paramIsKey = filter.isKeyParam();
         switch (filter.getOp()){

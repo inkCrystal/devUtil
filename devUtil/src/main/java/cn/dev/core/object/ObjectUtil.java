@@ -32,6 +32,9 @@ public class ObjectUtil {
      * @return
      */
     public static boolean isChildTypeOfClass(Class clazz ,Class typeClass){
+        if(clazz == typeClass){
+            return true;
+        }
         Class superClass = clazz.getSuperclass();
         while ( superClass !=null && superClass != Object.class){
             clazz = clazz.getSuperclass();

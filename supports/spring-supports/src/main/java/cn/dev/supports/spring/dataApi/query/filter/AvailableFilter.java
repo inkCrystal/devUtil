@@ -5,11 +5,12 @@ import cn.dev.supports.spring.dataApi.DataModel;
 import java.io.Serializable;
 import java.util.List;
 
-public class AvailableFilter<T extends DataModel> {
+public class AvailableFilter {
 
     private final String filterQuery ;
 
     private final List<Serializable> valueList ;
+
 
     private String jsonString ;
 

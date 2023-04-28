@@ -6,7 +6,7 @@ import cn.dev.supports.spring.dataApi.query.OpEnum;
 import java.io.Serializable;
 import java.util.Optional;
 
-class Node{
+class Node implements Serializable {
     private final String key;
     private final OpEnum opEnum;
     private final boolean keyParam ;

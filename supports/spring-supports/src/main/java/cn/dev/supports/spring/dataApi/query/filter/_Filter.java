@@ -19,22 +19,22 @@ import java.util.*;
  * @author Jason.Mao
  * @since  2021/6/18 15:36
  */
-public class Filter<T extends DataModel> implements Serializable {
+public class _Filter<T extends DataModel> implements Serializable {
     @Serial
     private static final long serialVersionUID =  -59177127794277L;
 
 
     // 外一层的 filterBean ，即 该 filter 是 一个 OR的 （内部filter）
-    private Filter<T> outerBean;
+    private _Filter<T> outerBean;
 
     // 该filter 后面接了 一个 AND （*） 或 OR的 （内部filter） 链路中的 第一个filter
-    private Filter<T> innerBean;
+    private _Filter<T> innerBean;
 
     // filter 链路中的上一个filterBean
-    private Filter<T> pre;
+    private _Filter<T> pre;
 
     /**下一个链路节点  ---by jason @ 2023/4/26 14:56 */
-    private Filter<T> next;
+    private _Filter<T> next;
 
     //**操作key   ---by jason @ 2023/4/26 14:56 */
     private String key;
@@ -51,15 +51,15 @@ public class Filter<T extends DataModel> implements Serializable {
     /**是否以 key 作为参数   ---by jason @ 2023/4/26 14:55 */
     private boolean keyParam = false;
 
-    public static FilterBuilder builder(){
-        return FilterBuilder.getBuilder();
+    public static _FilterBuilder builder(){
+        return _FilterBuilder.getBuilder();
     }
 
-    public static FilterBuilder.OrBuilder orBuilder(){
-        return FilterBuilder.Or;
+    public static _FilterBuilder.OrBuilder orBuilder(){
+        return _FilterBuilder.Or;
     }
 
-    protected Filter<T> markParamIsKey() {
+    protected _Filter<T> markParamIsKey() {
         this.keyParam = true;
         this.filterQuery = OpEnum.toFilterQuery(this);
         return this;
@@ -73,7 +73,7 @@ public class Filter<T extends DataModel> implements Serializable {
         this.op =  op;
     }
 
-    public void setNext(Filter<T> next) {
+    public void setNext(_Filter<T> next) {
         this.next = next;
     }
 
@@ -81,7 +81,7 @@ public class Filter<T extends DataModel> implements Serializable {
         this.values =  values;
     }
 
-    private void setPre(Filter<T> pre) {
+    private void setPre(_Filter<T> pre) {
         this.pre =  pre;
     }
 
@@ -127,27 +127,27 @@ public class Filter<T extends DataModel> implements Serializable {
         return filterQuery;
     }
 
-    private void setOuterBean(Filter outerBean) {
+    private void setOuterBean(_Filter outerBean) {
         this.outerBean =  outerBean;
     }
 
-    private void setInnerBean(Filter innerBean) {
+    private void setInnerBean(_Filter innerBean) {
         this.innerBean =  innerBean;
     }
 
-    public Filter<T> getNext() {
+    public _Filter<T> getNext() {
         return next;
     }
 
-    public Filter<T> getInnerBean() {
+    public _Filter<T> getInnerBean() {
         return innerBean;
     }
 
-    public Filter<T> getOuterBean() {
+    public _Filter<T> getOuterBean() {
         return outerBean;
     }
 
-    public Filter<T> getPre() {
+    public _Filter<T> getPre() {
         return pre;
     }
 
@@ -164,7 +164,7 @@ public class Filter<T extends DataModel> implements Serializable {
 //        return this;
 //    }
 
-    protected static <T extends DataModel> Filter<T> build(String key, OpEnum op, Serializable... values){
+    protected static <T extends DataModel> _Filter<T> build(String key, OpEnum op, Serializable... values){
         if (values!=null) {
             //构建前 检查 ！
             for (Serializable value : values) {
@@ -173,7 +173,7 @@ public class Filter<T extends DataModel> implements Serializable {
                 }
             }
         }
-        Filter<T> filterBean =  new Filter<T>();
+        _Filter<T> filterBean =  new _Filter<T>();
         filterBean.setKey(key);
         filterBean.setOp(op);
         if (Objects.nonNull(values) && values.length>0) {
@@ -185,7 +185,7 @@ public class Filter<T extends DataModel> implements Serializable {
     }
 
 
-    protected void appendNextFilter(Filter<T> filterBean){
+    protected void appendNextFilter(_Filter<T> filterBean){
         if (this.next!= null) {
             throw new RuntimeException("不可在链路中间插入新的filter节点");
         }
@@ -199,8 +199,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenEqual(String key , Serializable value){
-        Filter<T> filterBean = builder().whereEqual(key, value);
+    public _Filter<T> thenEqual(String key , Serializable value){
+        _Filter<T> filterBean = builder().whereEqual(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -211,8 +211,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenNotEqual(String key , Serializable value){
-        Filter<T> filterBean = builder().whereNotEqual(key, value);
+    public _Filter<T> thenNotEqual(String key , Serializable value){
+        _Filter<T> filterBean = builder().whereNotEqual(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -223,14 +223,14 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param values
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenIn(String key , Serializable... values){
+    public _Filter<T> thenIn(String key , Serializable... values){
         if(values==null || values.length==0){
             return this;
         }
         if(values.length ==1){
             return this.thenEqual(key, values[0]);
         }
-        Filter<T> filterBean = builder().whereIn(key, values);
+        _Filter<T> filterBean = builder().whereIn(key, values);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -241,14 +241,14 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param values
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenNotIn(String key , Serializable... values){
+    public _Filter<T> thenNotIn(String key , Serializable... values){
         if(values==null || values.length==0){
             return this;
         }
         if(values.length ==1){
             return this.thenNotEqual(key, values[0]);
         }
-        Filter<T> filterBean = builder().whereNotIn(key, values);
+        _Filter<T> filterBean = builder().whereNotIn(key, values);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -259,8 +259,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter thenLike(String key , String value){
-        Filter filterBean = builder().whereLike(key, value);
+    public _Filter thenLike(String key , String value){
+        _Filter filterBean = builder().whereLike(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -271,8 +271,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenNotLike(String key , String value){
-        Filter<T> filterBean = builder().whereNotLike(key, value);
+    public _Filter<T> thenNotLike(String key , String value){
+        _Filter<T> filterBean = builder().whereNotLike(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -283,8 +283,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenLessThan(String key , Number value){
-        Filter<T> filterBean = builder().whereLessThan(key, value);
+    public _Filter<T> thenLessThan(String key , Number value){
+        _Filter<T> filterBean = builder().whereLessThan(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -295,8 +295,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenLessThanOrEqual(String key , Number value){
-        Filter<T> filterBean = builder().whereLessThanOrEqual(key, value);
+    public _Filter<T> thenLessThanOrEqual(String key , Number value){
+        _Filter<T> filterBean = builder().whereLessThanOrEqual(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -307,8 +307,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenGreaterThan(String key , Number value){
-        Filter<T> filterBean = builder().whereGreaterThan(key, value);
+    public _Filter<T> thenGreaterThan(String key , Number value){
+        _Filter<T> filterBean = builder().whereGreaterThan(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -319,8 +319,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenGreaterThanOrEqual(String key , Number value){
-        Filter<T> filterBean = builder().whereGreaterThanOrEqual(key, value);
+    public _Filter<T> thenGreaterThanOrEqual(String key , Number value){
+        _Filter<T> filterBean = builder().whereGreaterThanOrEqual(key, value);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -332,8 +332,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param value2
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenBetweenAnd(String key , Serializable value1, Serializable value2){
-        Filter<T> filterBean = builder().whereBetweenAnd(key, value1, value2);
+    public _Filter<T> thenBetweenAnd(String key , Serializable value1, Serializable value2){
+        _Filter<T> filterBean = builder().whereBetweenAnd(key, value1, value2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -345,8 +345,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @return 返回 链路中 最后一个filter
      */
     @Deprecated
-    public Filter<T> thenEqualKey(String key , String key2){
-        Filter<T> filterBean = builder().whereEqualKey(key, key2);
+    public _Filter<T> thenEqualKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereEqualKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -358,8 +358,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @return 返回 链路中 最后一个filter
      */
     @Deprecated
-    public Filter<T> thenNotEqualKey(String key , String key2){
-        Filter<T> filterBean = builder().whereNotEqualKey(key, key2);
+    public _Filter<T> thenNotEqualKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereNotEqualKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -370,8 +370,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param key2
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenLessThanKey(String key , String key2){
-        Filter<T> filterBean = builder().whereLessThanKey(key, key2);
+    public _Filter<T> thenLessThanKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereLessThanKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -382,8 +382,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param key2
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenLessThanOrEqualKey(String key , String key2){
-        Filter<T> filterBean = builder().whereLessThanOrEqualKey(key, key2);
+    public _Filter<T> thenLessThanOrEqualKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereLessThanOrEqualKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -394,8 +394,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param key2
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenGreaterThanKey(String key , String key2){
-        Filter<T> filterBean = builder().whereGreaterThanKey(key, key2);
+    public _Filter<T> thenGreaterThanKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereGreaterThanKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -406,8 +406,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param key2
      * @return 返回 链路中 最后一个filter
      */
-    public Filter<T> thenGreaterThanOrEqualKey(String key , String key2){
-        Filter<T> filterBean = builder().whereGreaterThanOrEqualKey(key, key2);
+    public _Filter<T> thenGreaterThanOrEqualKey(String key , String key2){
+        _Filter<T> filterBean = builder().whereGreaterThanOrEqualKey(key, key2);
         this.appendNextFilter(filterBean);
         return filterBean;
     }
@@ -419,8 +419,8 @@ public class Filter<T extends DataModel> implements Serializable {
      * @return 返回 链路中 最后一个filter
      * @throws RuntimeException 传递进来的条件，必须是Builder Or构建的。不然抛出 RuntimeException
      */
-    public Filter<T> thenOrFilter(Mono<Filter<T>> filterMono){
-        Filter<T> filterBean = filterMono.block();
+    public _Filter<T> thenOrFilter(Mono<_Filter<T>> filterMono){
+        _Filter<T> filterBean = filterMono.block();
         if(filterBean.outerBean ==null &&  filterBean.pre == null){
             if(this.getInnerBean()!=null){
                 throw new RuntimeException("非法操作，该节点已经有绑定的Or条件，不可绑定多个");
@@ -442,7 +442,7 @@ public class Filter<T extends DataModel> implements Serializable {
      * @param publisher
      * @return
      */
-    public Filter<T> thenOr(Mono<Filter<T>> publisher){
+    public _Filter<T> thenOr(Mono<_Filter<T>> publisher){
 //        Filter filterBean = publisher.block();
         return this.thenOrFilter(publisher);
     }
@@ -452,16 +452,16 @@ public class Filter<T extends DataModel> implements Serializable {
      * 跳出 当前的 Or 片段，返回到 进入 该片段的最后一个链表节点，返回的节点可以继续操作。
      * @return
      */
-    public Filter<T> breakOr(){
-        Filter<T> filterBean = this.findBreak();
+    public _Filter<T> breakOr(){
+        _Filter<T> filterBean = this.findBreak();
         if(filterBean!=null){
             return filterBean;
         }
         throw new RuntimeException("该filter链路中没有可以Break的节点");
     }
 
-    private Filter<T> findBreak(){
-        Filter<T> f = this;
+    private _Filter<T> findBreak(){
+        _Filter<T> f = this;
         while (f.getPre()!=null){
             f = f.getPre();
         }
@@ -472,8 +472,8 @@ public class Filter<T extends DataModel> implements Serializable {
 
 
     }
-    public Filter<T> findStart(){
-        Filter<T> bean = this;
+    public _Filter<T> findStart(){
+        _Filter<T> bean = this;
         while (bean.getOuterBean()!=null){
             bean = bean.getOuterBean();
         }
@@ -487,22 +487,22 @@ public class Filter<T extends DataModel> implements Serializable {
      * 转化成 可用的 AvailableFilter，以便执行查询
      * @return AvailableFilter
      */
-    public AvailableFilter<T> toAvailableFilter(){
-        Filter<T> bean = findStart();
+    public AvailableFilter toAvailableFilter(){
+        _Filter bean = findStart();
         StringBuilder sb =new StringBuilder(" WHERE ");
         List<Serializable> values = new ArrayList<>();
         this.append(bean,sb,values);
         return new AvailableFilter(sb.toString(),values);
     }
 
-    private void appendInner(Filter<T> bean , StringBuilder sb, List<Serializable> values ){
+    private void appendInner(_Filter<T> bean , StringBuilder sb, List<Serializable> values ){
         sb.append(" OR (");
         this.append(bean,sb,values);
         sb.append(")");
     }
 
 
-    private void append(Filter<T> bean, StringBuilder sb, List<Serializable> values ){
+    private void append(_Filter<T> bean, StringBuilder sb, List<Serializable> values ){
         if(bean.getPre() != null){
             sb.append(" AND ");
         }
@@ -523,7 +523,7 @@ public class Filter<T extends DataModel> implements Serializable {
     public static void main(String[] args) throws JSONException, ParseException, JsonProcessingException {
 
 
-        final Filter bean =
+        final _Filter bean =
                 builder().whereLessThan("da", 12.2)
                         .thenBetweenAnd("id", 1, 2313)
                     .thenEqual("name", "张三")
