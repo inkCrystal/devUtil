@@ -21,6 +21,8 @@ public class VerificationTool {
         throwIfNull(o,"目标对象为NULL");
     }
 
+
+
     public static void throwIfFalse(Boolean b){
         throwIfFalse(b,"目标结果不是并非预期的 TRUE" );
     }

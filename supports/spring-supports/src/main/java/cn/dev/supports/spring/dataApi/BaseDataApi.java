@@ -19,4 +19,5 @@ public class BaseDataApi {
     List findByIdGreaterThan(Long id) {
         return null;
     }
+
 }

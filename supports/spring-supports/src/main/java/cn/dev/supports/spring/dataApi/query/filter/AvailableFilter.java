@@ -1,9 +1,11 @@
 package cn.dev.supports.spring.dataApi.query.filter;
 
+import cn.dev.supports.spring.dataApi.DataModel;
+
 import java.io.Serializable;
 import java.util.List;
 
-public class AvailableFilter {
+public class AvailableFilter<T extends DataModel> {
 
     private final String filterQuery ;
 

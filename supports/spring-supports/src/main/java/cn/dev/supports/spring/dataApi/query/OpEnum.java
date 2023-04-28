@@ -1,6 +1,7 @@
 package cn.dev.supports.spring.dataApi.query;
 
 import cn.dev.commons.verification.VerificationTool;
+import cn.dev.core.object.ProtostuffUtil;
 import cn.dev.supports.spring.dataApi.query.filter.Filter;
 
 import java.io.Serializable;
@@ -15,9 +16,9 @@ public enum OpEnum {
     EQUAL,                  // 拼接 一个 k = ? , 允许以Key 作为参数
     NOT_EQUAL,              // 拼接 一个 k != ? , 允许以Key 作为参数
     LESS_THAN,              // 拼接 一个 k < ? , 允许以Key 作为参数,参数类型是数值类型
-    LESS_THAN_AND_EQUAL,    // 拼接 一个 k <= ? , 允许以Key 作为参数,参数类型是数值类型
+    LESS_THAN_OR_EQUAL,     // 拼接 一个 k <= ? , 允许以Key 作为参数,参数类型是数值类型
     GREATER_THAN,           // 拼接 一个 k > ? , 允许以Key 作为参数,参数类型是数值类型
-    GREATER_THAN_AND_EQUAL, // 拼接 一个 k >= ? , 允许以Key 作为参数,参数类型是数值类型
+    GREATER_THAN_OR_EQUAL,  // 拼接 一个 k >= ? , 允许以Key 作为参数,参数类型是数值类型
     IS_NULL,                // 拼接 一个 k is null , 无参，一般不推荐使用
     IS_NOT_NULL,            // 拼接 一个 k is not null , 无参，一般不推荐使用
     NOT_BETWEEN_AND,        // 拼接 一个 k not between ? and ? , 允许以Key 作为参数,参数类型是数值类型
@@ -25,6 +26,66 @@ public enum OpEnum {
     AND                     // 保留用法，不会出现在 操作的方法中
 
     ;
+
+    public boolean keyParamAble(){
+        switch (this){
+            case EQUAL,NOT_EQUAL,LESS_THAN,LESS_THAN_OR_EQUAL,GREATER_THAN,GREATER_THAN_OR_EQUAL -> {
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    public int paramMinLen(){
+        switch (this){
+            case EQUAL,NOT_EQUAL,LESS_THAN,LESS_THAN_OR_EQUAL,GREATER_THAN,GREATER_THAN_OR_EQUAL,IN,NOT_IN -> {
+                return 1;
+            }
+            case LIKE,NOT_LIKE -> {
+                return 1;
+            }
+            case NOT_BETWEEN_AND,BETWEEN_AND -> {
+                return 2;
+            }
+            default -> {
+                return 0;
+            }
+        }
+    }
+
+    public int paramMaxLen(){
+        switch (this){
+            case EQUAL,NOT_EQUAL,LESS_THAN,LESS_THAN_OR_EQUAL,GREATER_THAN,GREATER_THAN_OR_EQUAL-> {
+                return 1;
+            }
+            case IN,NOT_IN -> {
+                return Integer.MAX_VALUE;
+            }
+            case LIKE,NOT_LIKE -> {
+                return 1;
+            }
+            case NOT_BETWEEN_AND,BETWEEN_AND -> {
+                return 2;
+            }
+            default -> {
+                return 0;
+            }
+        }
+    }
+    public boolean paramNullable(){
+        switch (this){
+            case IS_NOT_NULL ,IS_NULL-> {
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+
 
     /**
      * 协助 filter 转成 正常的SQL filter 片段
@@ -40,9 +101,9 @@ public enum OpEnum {
             case LIKE -> buildLike(sb,filter.getKey(),(String) filter.getAllTypeValues()[0],paramIsKey);
             case NOT_LIKE -> buildNotLike(sb,filter.getKey(),(String) filter.getAllTypeValues()[0],paramIsKey);
             case LESS_THAN -> buildLessThan(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
-            case LESS_THAN_AND_EQUAL -> buildLessThanAndEqual(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
+            case LESS_THAN_OR_EQUAL -> buildLessThanAndEqual(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
             case GREATER_THAN -> buildGreaterThan(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
-            case GREATER_THAN_AND_EQUAL -> buildGreaterThanAndEqual(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
+            case GREATER_THAN_OR_EQUAL -> buildGreaterThanAndEqual(sb,filter.getKey(),filter.getAllTypeValues()[0],paramIsKey);
             case IN -> buildIn(sb,filter.getKey(),filter.getAllTypeValues(),paramIsKey);
             case NOT_IN -> buildNotIn(sb,filter.getKey(),filter.getAllTypeValues(),paramIsKey);
             case BETWEEN_AND -> buildBetweenAnd(sb,filter.getKey(),filter.getAllTypeValues()[0],filter.getAllTypeValues()[1],paramIsKey);
@@ -185,9 +246,9 @@ public enum OpEnum {
             case EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用EQUAL查询时，参数只能有一个");
             case NOT_EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用NOT EQUAL查询时，参数只能有一个");
             case LESS_THAN -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用LESS THAN查询时，参数只能有一个");
-            case LESS_THAN_AND_EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用LESS THAN AND EQUAL查询时，参数只能有一个");
+            case LESS_THAN_OR_EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用LESS THAN AND EQUAL查询时，参数只能有一个");
             case GREATER_THAN -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用GREATER THAN查询时，参数只能有一个");
-            case GREATER_THAN_AND_EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用GREATER THAN AND EQUAL查询时，参数只能有一个");
+            case GREATER_THAN_OR_EQUAL -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,1,1,"使用GREATER THAN AND EQUAL查询时，参数只能有一个");
             case BETWEEN_AND -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,2,2,"使用BETWEEN AND查询时，参数只能有两个");
             case NOT_BETWEEN_AND -> VerificationTool.throwIfArrayLengthIsNotBetweenAnd(value,2,2,"使用NOT BETWEEN AND查询时，参数只能有两个");
 

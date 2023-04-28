@@ -142,7 +142,7 @@ public class FilterBuilder {
     }
 
     public Filter whereLessThanOrEqual(String key, Number value){
-        return Filter.build(key, OpEnum.LESS_THAN_AND_EQUAL, value);
+        return Filter.build(key, OpEnum.LESS_THAN_OR_EQUAL, value);
     }
 
 
@@ -152,7 +152,7 @@ public class FilterBuilder {
     }
 
     public Filter whereGreaterThanOrEqual(String key, Number value){
-        return Filter.build(key, OpEnum.GREATER_THAN_AND_EQUAL, value);
+        return Filter.build(key, OpEnum.GREATER_THAN_OR_EQUAL, value);
     }
 
     @Deprecated
@@ -192,7 +192,7 @@ public class FilterBuilder {
     }
 
     public Filter whereLessThanOrEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.LESS_THAN_AND_EQUAL,key2)
+        return Filter.build(key, OpEnum.LESS_THAN_OR_EQUAL,key2)
                 .markParamIsKey();
     }
 
@@ -202,7 +202,7 @@ public class FilterBuilder {
     }
 
     public Filter whereGreaterThanOrEqualKey(String key , String key2){
-        return Filter.build(key, OpEnum.GREATER_THAN_AND_EQUAL,key2)
+        return Filter.build(key, OpEnum.GREATER_THAN_OR_EQUAL,key2)
                 .markParamIsKey();
     }
 
