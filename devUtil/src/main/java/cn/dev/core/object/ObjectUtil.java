@@ -79,6 +79,16 @@ public class ObjectUtil {
         }
     }
 
+    /**
+     * 检查 class是否包含某个字段
+     * @param clazz
+     * @param fieldName
+     * @return
+     */
+    public static boolean containsField(Class<?> clazz,String fieldName){
+        return Arrays.stream(getFullFieldsWithSuperClass(clazz)).anyMatch(field -> field.getName().equals(fieldName));
+    }
+
 
 
 

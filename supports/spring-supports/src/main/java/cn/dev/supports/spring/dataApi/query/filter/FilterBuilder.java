@@ -74,6 +74,9 @@ public class FilterBuilder<T extends DataModel> {
     }
 
     private void appendEntry(Node t){
+        boolean containsKey = ObjectUtil.containsField(modelType, t.key());
+        AssertTool.throwIfFalse(containsKey,"对象"+modelType+"不包含 key 为 "+t.key()+" 的属性");
+
         if(firstEntry == null){
             firstEntry = t;
             currentEntry = t;

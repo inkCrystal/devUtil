@@ -1,6 +1,7 @@
 package cn.dev.supports.spring.dataApi.query.filter;
 
 import cn.dev.commons.verification.AssertTool;
+import cn.dev.core.object.ObjectUtil;
 import cn.dev.supports.spring.dataApi.query.OpEnum;
 
 import java.io.Serializable;
@@ -32,8 +33,9 @@ class Node implements Serializable {
                 AssertTool.throwIfTrue( len< minLen , "该操作符["+opEnum+"]参数至少有" + minLen + "个");
             }
         }
-
     }
+
+
 
     protected Node(String key, OpEnum opEnum, boolean keyParam, Serializable... values) {
         this.paramCheck(opEnum, keyParam, values);

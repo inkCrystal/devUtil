@@ -6,9 +6,12 @@ import cn.dev.core.object.ObjectUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ClassFieldMapper {
 
+    private final long initTime ;
+    private long fireCount =0L;
     private long lastFire = CommonTimeClock.currentMillis();
     /**
      * 目标对象类
@@ -18,6 +21,7 @@ public class ClassFieldMapper {
      * 目标对象类的所有直接字段
      */
     private final  Field[] declaredFields;
+
 
     /**
      * 目标对象类 有无 非 Object 的父类
@@ -34,6 +38,7 @@ public class ClassFieldMapper {
         this.clazz = clazz;
         this.declaredFields = declaredFields;
         this.hasSuperClass = (clazz.getSuperclass() != Objects.class);
+        this.initTime = CommonTimeClock.currentMillis();
     }
 
     /**
@@ -113,5 +118,40 @@ public class ClassFieldMapper {
             }
         }
         return false;
+    }
+
+    /**
+     * 访问
+     */
+    protected ClassFieldMapper fire(){
+        this.lastFire = CommonTimeClock.currentMillis();
+        this.fireCount ++;
+        return this;
+    }
+
+    protected long getFireCount() {
+        return fireCount;
+    }
+
+
+    public long getInitTime() {
+        return initTime;
+    }
+
+    /**
+     * 当前空闲的时长
+     * @return
+     */
+    protected long lastIdleTime(){
+        return CommonTimeClock.currentMillis() - this.lastFire;
+    }
+
+    /**
+     * 自定义的测试
+     * @param predicate
+     * @return
+     */
+    protected boolean test(Predicate<ClassFieldMapper> predicate){
+        return predicate.test(this);
     }
 }

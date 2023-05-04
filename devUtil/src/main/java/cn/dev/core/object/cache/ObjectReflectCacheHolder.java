@@ -27,10 +27,28 @@ public class ObjectReflectCacheHolder {
     public static ClassFieldMapper get(Class<?> clazz){
         if (clazz!=null) {
             if (contains(clazz)) {
-                return cache.get(clazz.getName());
+                return cache.get(clazz.getName()).fire();
             }
         }
         return null;
     }
+
+    private void test(){
+
+        long freeMemory = Runtime.getRuntime().freeMemory();
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        long usedMemory = totalMemory - freeMemory;
+
+        for (String k : cache.keySet()) {
+            if (cache.get(k).getFireCount() == 0) {
+
+            }
+
+        }
+        
+
+    }
+
+
 
 }

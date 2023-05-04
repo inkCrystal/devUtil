@@ -22,6 +22,7 @@ public class FilterConverter {
     }
 
 
+
     private static void nodeToMap(List<Map<String,Object>> list, Node entry ){
         Map<String,Object> map = new HashMap<>();
         map.put("k",entry.key());
@@ -39,6 +40,11 @@ public class FilterConverter {
         }
     }
 
+    public static AvailableFilter fromJsonStr(String json ,Class<?> targetClass) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String,Object> mainMap = (Map<String, Object>) objectMapper.readValue(json, Map.class);
+        return fromMap(mainMap,targetClass);
+    }
 
 
     public static AvailableFilter fromJsonStr(String json) throws JsonProcessingException, ClassNotFoundException {
@@ -46,17 +52,20 @@ public class FilterConverter {
         Map<String,Object> mainMap = (Map<String, Object>) objectMapper.readValue(json, Map.class);
         String type = (String) mainMap.get("type");
         Class<?> aClass = Class.forName(type);
+        return fromMap(mainMap,aClass);
+    }
 
+
+    private static AvailableFilter fromMap(Map<String,Object> mainMap ,Class<?> targetClass){
         List<Map<String, Object>> list = (List<Map<String, Object>>) mainMap.get("body");
-        var builder = FilterBuilder.getBuilder(aClass);
+        var builder = FilterBuilder.getBuilder(targetClass);
         for (Map<String, Object> entryMap : list) {
-             callBulid(builder,entryMap);
+            callBuild(builder,entryMap);
         }
-
         return builder.toAvailableFilter();
     }
 
-    private static <T extends DataModel>void callBulid(FilterBuilder<T> builder , Map<String,Object> entryMap){
+    private static <T extends DataModel>void callBuild(FilterBuilder<T> builder , Map<String,Object> entryMap){
         OpEnum op = OpEnum.valueOf((String) entryMap.get("op"));
         String key = (String) entryMap.get("k");
         String paramType = (String) entryMap.get("paramType");
@@ -119,7 +128,7 @@ public class FilterConverter {
         if (orFilter!=null && orFilter.size()>0) {
             builder.thenOR();
             for (Map<String, Object> orEntryMap : orFilter) {
-                callBulid(builder,orEntryMap);
+                callBuild(builder,orEntryMap);
             }
             builder.breakOR();
         }

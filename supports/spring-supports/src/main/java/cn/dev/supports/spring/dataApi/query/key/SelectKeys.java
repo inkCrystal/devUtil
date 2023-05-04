@@ -2,7 +2,8 @@ package cn.dev.supports.spring.dataApi.query.key;
 
 public class SelectKeys {
 
-    private static final SelectKeys ALL = new SelectKeys(new String[]{"*"});
+    private static final SelectKeys SELECT_ALL = new SelectKeys(new String[]{"*"});
+    private static final SelectKeys SELECT_ID = new SelectKeys(new String[]{"id"});
 
     private int skip  = 0 ;
     private int limit =10;
@@ -13,16 +14,33 @@ public class SelectKeys {
     }
 
 
-    public static SelectKeys select(String... keys) {
+
+    public static SelectKeys selectKeys(String... keys) {
+        if(keys == null){
+            return selectAll();
+        }
+        if(keys.length == 0){
+            return selectId();
+        }
+        if(keys.length ==1){
+            String t = keys[0];
+            if(t==null){
+                return selectId();
+            }else if (t.equalsIgnoreCase("*")) {
+                return selectAll();
+            }else if (t.equalsIgnoreCase("id")) {
+                return selectId();
+            }
+        }
         return new SelectKeys(keys);
     }
 
     public static SelectKeys selectAll() {
-        return ALL;
+        return SELECT_ALL;
     }
 
     public static SelectKeys selectId() {
-        return new SelectKeys(new String[]{"id"});
+        return SELECT_ID;
     }
 
     public String selectKeyQueryString(){
