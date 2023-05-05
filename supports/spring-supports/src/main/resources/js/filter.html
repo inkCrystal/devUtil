@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="op.js" ></script>
+    <script src="FilterBuilder.js" ></script>
+</head>
+<body>
+
+<script>
+    window.onload = function (){
+        console.log( minParamLength( "IN"))
+        console.log(OP_GREATER_THAN)
+
+        let a = 'abc';
+        let b = 'ab' + 'c';
+        console.log( a === b )
+
+        let json = JSON.parse("{}")
+        json.body = [];
+        console.log(json)
+        json.body.push(  {a:123,b:234} )
+        console.log(JSON.stringify(json));
+
+        var  filter = new selectFilter();
+        filter.in("id",1,2,3);
+        filter.beginOR()
+            .eq("id",1234).between("score",3,100)
+        .breakOR()
+            .lessThan("age",18);
+        console.log(filter.toJSON());
+        console.log( JSON.stringify(filter.toJSON()) );
+
+    }
+
+</script>
+
+
+</body>
+</html>

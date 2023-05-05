@@ -256,6 +256,15 @@ public enum OpEnum {
     }
 
 
+    public static void main(String[] args) {
+
+
+        for (OpEnum value : values()) {
+            System.out.println("\tthis.OP_"+value.toString().toUpperCase()+" =  '"+value+"' ; ");
+
+        }
+    }
+
 
 
 

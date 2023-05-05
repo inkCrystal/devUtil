@@ -1,5 +1,6 @@
 package cn.dev.supports.spring.dataApi.query.filter;
 
+import cn.dev.commons.ArrayUtil;
 import cn.dev.commons.verification.AssertTool;
 import cn.dev.core.object.ObjectUtil;
 import cn.dev.supports.spring.dataApi.DataModel;
@@ -25,8 +26,8 @@ public class FilterBuilder<T extends DataModel> {
         this.modelType = (Class<T>) modelType;
     }
 
-    public static <T extends DataModel> FilterBuilder<T> getBuilder(Class<?> modelType){
-        return new FilterBuilder<T>(modelType);
+    public static <T extends DataModel> FilterBuilder<T> getBuilder(Class<T> modelType){
+        return new FilterBuilder<>(modelType);
     }
 
     /**
@@ -76,7 +77,14 @@ public class FilterBuilder<T extends DataModel> {
     private void appendEntry(Node t){
         boolean containsKey = ObjectUtil.containsField(modelType, t.key());
         AssertTool.throwIfFalse(containsKey,"对象"+modelType+"不包含 key 为 "+t.key()+" 的属性");
-
+        if (t.keyParamsValue().isPresent()) {
+            for (Serializable serializable : t.keyParamsValue().get()) {
+                if (serializable!=null) {
+                    boolean ck =ObjectUtil.containsField(modelType, serializable.toString());
+                    AssertTool.throwIfFalse(ck,"对象"+modelType+"不包含 key 为 "+serializable+" 的属性");
+                }
+            }
+        }
         if(firstEntry == null){
             firstEntry = t;
             currentEntry = t;

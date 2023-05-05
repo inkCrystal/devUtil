@@ -4,6 +4,7 @@ import cn.dev.supports.spring.dataApi.DataModel;
 import cn.dev.supports.spring.dataApi.query.OpEnum;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.parser.JSONParser;
 import org.json.JSONException;
 
 import java.io.Serializable;
@@ -11,13 +12,23 @@ import java.util.*;
 
 public class FilterConverter {
 
+    private static final String KEY_BODY = "body";
+    private static final String KEY_CLASS_TYPE ="type";
+    private static final String KEY_ITEM_KEY = "k";
+    private static final String KEY_ITEM_VALUE = "v";
+    private static final String KEY_ITEM_VALUE_TYPE = "vType";
+    private static final String KEY_ITEM_OP = "op";
+    private static final String KEY_OR_BODY = "body";
+
+
+
 
     public static String toJson(Class type,Node filter) throws JSONException, JsonProcessingException {
         List<Map<String,Object>> list = new ArrayList<>();
         nodeToMap(list,filter);
         Map<String,Object> map = new HashMap<>();
-        map.put("body",list);
-        map.put("type",type.getName());
+        map.put(KEY_BODY,list);
+        map.put(KEY_CLASS_TYPE,type.getName());
         return new ObjectMapper().writeValueAsString(map);
     }
 
@@ -25,14 +36,14 @@ public class FilterConverter {
 
     private static void nodeToMap(List<Map<String,Object>> list, Node entry ){
         Map<String,Object> map = new HashMap<>();
-        map.put("k",entry.key());
-        map.put("op",entry.opEnum().toString());
-        map.put("paramType",entry.isKeyParam()?"k":"v");
-        map.put("params",entry.readValuesWithOutCheck());
+        map.put(KEY_ITEM_KEY,entry.key());
+        map.put(KEY_ITEM_OP,entry.opEnum().toString());
+        map.put(KEY_ITEM_VALUE_TYPE,entry.isKeyParam()?KEY_ITEM_KEY:"v");
+        map.put(KEY_ITEM_VALUE,entry.readValuesWithOutCheck());
         if (entry.innerNode().isPresent()) {
             List<Map<String,Object>> orList =new ArrayList<>();
             nodeToMap(orList,entry.innerNode().get());
-            map.put("orFilter",orList);
+            map.put(KEY_OR_BODY,orList);
         }
         list.add(map);
         if (entry.nextNode().isPresent()) {
@@ -40,7 +51,28 @@ public class FilterConverter {
         }
     }
 
-    public static AvailableFilter fromJsonStr(String json ,Class<?> targetClass) throws JsonProcessingException {
+    public Map<String,Object>  jsonToMap(String json) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String,Object> mainMap = (Map<String, Object>) objectMapper.readValue(json, Map.class);
+        if(mainMap.containsKey(KEY_BODY)){
+            if (mainMap.get(KEY_BODY) instanceof List) {
+                return mainMap;
+            }
+        }else{
+
+        }
+
+        return null;
+
+
+
+
+    }
+
+
+
+
+    public static <T extends DataModel> AvailableFilter fromJsonStr(String json ,Class<T> targetClass) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String,Object> mainMap = (Map<String, Object>) objectMapper.readValue(json, Map.class);
         return fromMap(mainMap,targetClass);
@@ -50,13 +82,13 @@ public class FilterConverter {
     public static AvailableFilter fromJsonStr(String json) throws JsonProcessingException, ClassNotFoundException {
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String,Object> mainMap = (Map<String, Object>) objectMapper.readValue(json, Map.class);
-        String type = (String) mainMap.get("type");
+        String type = (String) mainMap.get(KEY_CLASS_TYPE);
         Class<?> aClass = Class.forName(type);
-        return fromMap(mainMap,aClass);
+        return fromMap(mainMap,(Class<? extends DataModel>) aClass);
     }
 
 
-    private static AvailableFilter fromMap(Map<String,Object> mainMap ,Class<?> targetClass){
+    private static <T extends DataModel>AvailableFilter fromMap(Map<String,Object> mainMap ,Class<T> targetClass){
         List<Map<String, Object>> list = (List<Map<String, Object>>) mainMap.get("body");
         var builder = FilterBuilder.getBuilder(targetClass);
         for (Map<String, Object> entryMap : list) {
@@ -66,11 +98,11 @@ public class FilterConverter {
     }
 
     private static <T extends DataModel>void callBuild(FilterBuilder<T> builder , Map<String,Object> entryMap){
-        OpEnum op = OpEnum.valueOf((String) entryMap.get("op"));
-        String key = (String) entryMap.get("k");
-        String paramType = (String) entryMap.get("paramType");
-        boolean isKeyParam = "k".equals(paramType);
-        List<Serializable>params = (List<Serializable>) entryMap.getOrDefault("params", Collections.emptyList());
+        OpEnum op = OpEnum.valueOf((String) entryMap.get(KEY_ITEM_OP));
+        String key = (String) entryMap.get(KEY_ITEM_KEY);
+        String paramType = (String) entryMap.get(KEY_ITEM_VALUE_TYPE);
+        boolean isKeyParam = KEY_ITEM_KEY.equals(paramType);
+        List<Serializable>params = (List<Serializable>) entryMap.getOrDefault(KEY_ITEM_VALUE, Collections.emptyList());
         switch (op){
             case IN -> builder.thenIn(key,params.toArray(new Serializable[0]));
             case NOT_IN -> builder.thenNotIn(key,params.toArray(new Serializable[0]));
@@ -124,7 +156,7 @@ public class FilterConverter {
             }
             default -> {}
         }
-        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault("orFilter", Collections.emptyList());
+        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault(KEY_OR_BODY, Collections.emptyList());
         if (orFilter!=null && orFilter.size()>0) {
             builder.thenOR();
             for (Map<String, Object> orEntryMap : orFilter) {
@@ -136,22 +168,22 @@ public class FilterConverter {
 
 
     private static Node mapToNode(Map<String, Object> entryMap ){
-        String key = (String) entryMap.get("k");
-        OpEnum op = OpEnum.valueOf((String) entryMap.get("op"));
-        String paramType = (String) entryMap.get("paramType");
-        boolean isKeyParam = "k".equals(paramType);
-        List<Map<String,Object>> params = (List<Map<String,Object>>) entryMap.getOrDefault("params", Collections.emptyList());
-        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault("orFilter", Collections.emptyList());
+        String key = (String) entryMap.get(KEY_ITEM_KEY);
+        OpEnum op = OpEnum.valueOf((String) entryMap.get(KEY_ITEM_OP));
+        String paramType = (String) entryMap.get(KEY_ITEM_VALUE_TYPE);
+        boolean isKeyParam = KEY_ITEM_KEY.equals(paramType);
+        List<Map<String,Object>> params = (List<Map<String,Object>>) entryMap.getOrDefault(KEY_ITEM_VALUE, Collections.emptyList());
+        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault(KEY_OR_BODY, Collections.emptyList());
         return new Node(key,op,isKeyParam,params.toArray(new Serializable[0]));
     }
 
     private static Node buildNode(Node preNode ,Map<String,Object> entryMap){
-        String key = (String) entryMap.get("k");
-        OpEnum op = OpEnum.valueOf((String) entryMap.get("op"));
-        String paramType = (String) entryMap.get("paramType");
-        boolean isKeyParam = "k".equals(paramType);
-        List<Map<String,Object>> params = (List<Map<String,Object>>) entryMap.getOrDefault("params", Collections.emptyList());
-        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault("orFilter", Collections.emptyList());
+        String key = (String) entryMap.get(KEY_ITEM_KEY);
+        OpEnum op = OpEnum.valueOf((String) entryMap.get(KEY_ITEM_OP));
+        String paramType = (String) entryMap.get(KEY_ITEM_VALUE_TYPE);
+        boolean isKeyParam = KEY_ITEM_KEY.equals(paramType);
+        List<Map<String,Object>> params = (List<Map<String,Object>>) entryMap.getOrDefault(KEY_ITEM_VALUE, Collections.emptyList());
+        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) entryMap.getOrDefault(KEY_OR_BODY, Collections.emptyList());
         Node node = new Node(key,op,isKeyParam,params.toArray(new Serializable[0]));
         if(preNode != null){
             preNode.appendNext(node);
@@ -174,63 +206,19 @@ public class FilterConverter {
     }
 
 
-//
-//
-//    public static AvailableFilter fromJson(String json) throws JsonProcessingException {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        List<Map<String,Object>> list = objectMapper.readValue(json, List.class);
-//        Filter filter = null;
-//        for (Map<String, Object> map : list) {
-//            filter = appenFilter(filter, map);
-//        }
-//        return filter.toAvailableFilter();
-//    }
-//
-//
-//
-//    private static Filter appenFilter(Filter preFilter , Map<String,Object> map){
-//        String key = (String) map.get("k");
-//        OpEnum op = OpEnum.valueOf((String) map.get("op"));
-//        String paramType = (String) map.get("paramType");
-//        boolean isKeyParam = "k".equals(paramType);
-//        List<Map<String,Object>> params = (List<Map<String,Object>>) map.getOrDefault("params", Collections.emptyList());
-//        List<Map<String,Object>> orFilter = (List<Map<String,Object>>) map.getOrDefault("orFilter", Collections.emptyList());
-//        Filter filter =  Filter.build(key,op,params.toArray(new Serializable[0]));
-//        if(isKeyParam){
-//            filter.markParamIsKey();
-//        }
-//        if(preFilter != null){
-//            preFilter.appendNextFilter(filter);
-//        }
-//        if(!orFilter.isEmpty()){
-//            appendOr(filter,orFilter);
-//        }
-//        return filter;
-//    }
-//
-//    private static void appendOr(Filter outFilter ,List<Map<String,Object>> orFilter){
-//        Map<String, Object> map = orFilter.get(0);
-//        Filter filter = appenFilter(null, map);
-//        outFilter.thenOrFilter(Mono.just(filter));
-//        if(orFilter.size()>1){
-//            for (int i = 1; i <orFilter.size() ; i++) {
-//                filter = appenFilter(filter,orFilter.get(i));
-//            }
-//        }
-//    }
-
-
     public static void main(String[] args) throws JSONException, JsonProcessingException, ClassNotFoundException {
 
 
         // select keys from tb where () and ()
-        final FilterBuilder<DataModel> dataModelFilterBuilder =
-                FilterBuilder.getBuilder(DataModel.class).thenNotEqual("id", 12344)
-                        .thenOR().thenEqual("id", 12313).breakOR()
-                .thenIn("age", 1, 2, 3).thenLessThan("age", 133).thenLessThanOrEqual("age", 133).thenGreaterThanKey("dateofBirth","bith")
-                        .thenOR().thenEqual("name", "张三").thenEqualKey("name", "name").breakOR()
-                .thenBetweenAnd("num", 1, 2).thenGreaterThan("num", 1);
 
+        final FilterBuilder<TestBean> dataModelFilterBuilder = FilterBuilder.getBuilder(TestBean.class).thenNotEqual("id", 12344)
+                .thenOR().thenEqual("id", 12313).breakOR();
+        dataModelFilterBuilder
+                .thenIn("age", 1, 2, 3).thenLessThan("age", 133)
+                .thenLessThanOrEqual("age", 133).thenGreaterThanKey("dateofBirth", "dateofBirth")
+                .thenOR().thenEqual("name", "张三").thenEqualKey("name", "name").breakOR()
+                .thenBetweenAnd("num", 1, 2).thenGreaterThan("num", 1);
+        System.out.println(dataModelFilterBuilder.getModelType());
 
 
 //        System.out.println(new ObjectMapper().writeValueAsString(dataModelSelectFilterBuilder.getFirstEntry()));
@@ -240,8 +228,37 @@ public class FilterConverter {
         System.out.println(dataModelFilterBuilder.toAvailableFilter().getFilterQuery());
         System.out.println(availableFilter.getFilterQuery());
 
+        System.out.println( fromJsonStr("{\"body\":[{\"op\":\"IN\",\"vType\":\"v\",\"v\":[1,2,3],\"body\":[{\"op\":\"EQUAL\",\"vType\":\"v\",\"v\":[1234]},{\"op\":\"BETWEEN_AND\",\"vType\":\"v\",\"v\":[3,100]}]},{\"op\":\"LESS_THAN\",\"vType\":\"v\",\"v\":[18]}]}"));
+
 
     }
 
+    class jsonCheckResult{
+        /**检查是否通过  ---by jason @ 2023/5/5 13:26 */
+        private boolean success;
+        private String fixedJson ;
+        private Map<String,Object> jsonMap;
+
+        public jsonCheckResult(boolean success, String fixedJson) {
+            this.success = success;
+            this.fixedJson = fixedJson;
+        }
+
+        public void setJsonMap(Map<String, Object> jsonMap) {
+            this.jsonMap = jsonMap;
+        }
+
+        public Map<String, Object> getJsonMap() {
+            return jsonMap;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getFixedJson() {
+            return fixedJson;
+        }
+    }
 
 }
